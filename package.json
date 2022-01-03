@@ -1,0 +1,21 @@
+{
+  "name": "@koil-finance/core",
+  "private": true,
+  "description": "Koil Finance Core",
+  "homepage": "https://github.com/ignatov357/koil-finance-core",
+  "repository": "git@github.com:ignatov357/koil-finance-core.git",
+  "bugs": {
+    "url": "https://github.com/ignatov357/koil-finance-core/issues"
+  },
+  "engines": {
+    "node": ">=12.10"
+  },
+  "scripts": {
+    "build": "yarn workspaces foreach --parallel --verbose run build",
+    "lint": "yarn workspaces foreach --parallel --verbose run lint",
+    "test": "yarn workspaces foreach --parallel --verbose run test"
+  },
+  "workspaces": [
+    "packages/*"
+  ]
+}
