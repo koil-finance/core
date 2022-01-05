@@ -1,0 +1,21 @@
+{
+  "name": "@koil-finance/common",
+  "description": "Common configuration",
+  "private": true,
+  "version": "1.0.1",
+  "scripts": {
+    "lint": "yarn lint:typescript",
+    "lint:typescript": "eslint . --ext .ts --ignore-path ../../.eslintignore  --max-warnings 0"
+  },
+  "dependencies": {
+    "@koil-finance/helpers": "*",
+    "typescript": "^4.0.2"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^4.1.1",
+    "@typescript-eslint/parser": "^4.1.1",
+    "eslint": "^7.9.0",
+    "eslint-plugin-prettier": "^3.1.4",
+    "prettier": "^2.1.2"
+  }
+}
