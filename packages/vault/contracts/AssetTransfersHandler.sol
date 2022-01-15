@@ -23,8 +23,8 @@ abstract contract AssetTransfersHandler is AssetHelpers {
      * @dev Receives `amount` of `asset` from `sender`. If `fromInternalBalance` is true, it first withdraws as much
      * as possible from Internal Balance, then transfers any remaining amount.
      *
-     * If `asset` is FUSE, `fromInternalBalance` must be false (as FUSE cannot be held as internal balance), and the funds
-     * will be wrapped into WFUSE.
+     * If `asset` is FUSE, `fromInternalBalance` must be false (as FUSE cannot be held as internal balance),
+     * and the funds will be wrapped into WFUSE.
      *
      * WARNING: this function does not check that the contract caller has actually supplied any FUSE - it is up to the
      * caller of this function to check that this is true to prevent the Vault from using its own FUSE (though the Vault
@@ -124,14 +124,14 @@ abstract contract AssetTransfersHandler is AssetHelpers {
     }
 
     /**
-     * @dev Enables the Vault to receive FUSE. This is required for it to be able to unwrap WFUSE, which sends FUSE to the
-     * caller.
+     * @dev Enables the Vault to receive FUSE.
+     * This is required for it to be able to unwrap WFUSE, which sends FUSE to the caller.
      *
      * Any FUSE sent to the Vault outside of the WFUSE unwrapping mechanism would be forever locked inside the Vault, so
-     * we prevent that from happening. Other mechanisms used to send FUSE to the Vault (such as being the recipient of an
-     * FUSE swap, Pool exit or withdrawal, contract self-destruction, or receiving the block mining reward) will result
-     * in locked funds, but are not otherwise a security or soundness issue. This check only exists as an attempt to
-     * prevent user error.
+     * we prevent that from happening. Other mechanisms used to send FUSE to the Vault (such as being the recipient of
+     * an FUSE swap, Pool exit or withdrawal, contract self-destruction, or receiving the block mining reward) will
+     * result in locked funds, but are not otherwise a security or soundness issue. This check only exists as an attempt
+     * to prevent user error.
      */
     receive() external payable {
         _require(msg.sender == address(_WFUSE()), Errors.FUSE_TRANSFER);

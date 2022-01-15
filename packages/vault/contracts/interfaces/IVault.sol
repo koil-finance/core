@@ -117,9 +117,9 @@ interface IVault is IVaultPartial, ISignaturesValidator, ITemporarilyPausable {
     // Increases the Internal Balance of the `recipient` account by transferring tokens from the corresponding
     // `sender`. The sender must have allowed the Vault to use their tokens via `IERC20.approve()`.
     //
-    // FUSE can be used by passing the FUSE sentinel value as the asset and forwarding FUSE in the call: it will be wrapped
-    // and deposited as WFUSE. Any FUSE amount remaining will be sent back to the caller (not the sender, which is
-    // relevant for relayers).
+    // FUSE can be used by passing the FUSE sentinel value as the asset and forwarding FUSE in the call:
+    // it will be wrapped and deposited as WFUSE. Any FUSE amount remaining will be sent back to the caller
+    // (not the sender, which is relevant for relayers).
     //
     // Emits an `InternalBalanceChanged` event.
     //
@@ -127,8 +127,8 @@ interface IVault is IVaultPartial, ISignaturesValidator, ITemporarilyPausable {
     // - WITHDRAW_INTERNAL
     // Decreases the Internal Balance of the `sender` account by transferring tokens to the `recipient`.
     //
-    // FUSE can be used by passing the FUSE sentinel value as the asset. This will deduct WFUSE instead, unwrap it and send
-    // it to the recipient as FUSE.
+    // FUSE can be used by passing the FUSE sentinel value as the asset. This will deduct WFUSE instead,
+    // unwrap it and send it to the recipient as FUSE.
     //
     // Emits an `InternalBalanceChanged` event.
     //
@@ -321,15 +321,15 @@ interface IVault is IVaultPartial, ISignaturesValidator, ITemporarilyPausable {
      * to send for each asset. The amounts to send are decided by the Pool and not the Vault: it just enforces
      * these maximums.
      *
-     * If joining a Pool that holds WFUSE, it is possible to send FUSE directly: the Vault will do the wrapping. To enable
-     * this mechanism, the IAsset sentinel value (the zero address) must be passed in the `assets` array instead of the
-     * WFUSE address. Note that it is not possible to combine FUSE and WFUSE in the same join. Any excess FUSE will be sent
-     * back to the caller (not the sender, which is important for relayers).
+     * If joining a Pool that holds WFUSE, it is possible to send FUSE directly: the Vault will do the wrapping.
+     * To enable this mechanism, the IAsset sentinel value (the zero address) must be passed in the `assets` array
+     * instead of the WFUSE address. Note that it is not possible to combine FUSE and WFUSE in the same join.
+     * Any excess FUSE will be sent back to the caller (not the sender, which is important for relayers).
      *
      * `assets` must have the same length and order as the array returned by `getPoolTokens`. This prevents issues when
      * interacting with Pools that register and deregister tokens frequently. If sending FUSE however, the array must be
-     * sorted *before* replacing the WFUSE address with the FUSE sentinel value (the zero address), which means the final
-     * `assets` array might not be sorted. Pools with no registered tokens cannot be joined.
+     * sorted *before* replacing the WFUSE address with the FUSE sentinel value (the zero address),
+     * which means the final `assets` array might not be sorted. Pools with no registered tokens cannot be joined.
      *
      * If `fromInternalBalance` is true, the caller's Internal Balance will be preferred: ERC20 transfers will only
      * be made for the difference between the requested amount and Internal Balance (if any). Note that FUSE cannot be
@@ -458,10 +458,10 @@ interface IVault is IVaultPartial, ISignaturesValidator, ITemporarilyPausable {
     // Additionally, a 'deadline' timestamp can also be provided, forcing the swap to fail if it occurs after
     // this point in time (e.g. if the transaction failed to be included in a block promptly).
     //
-    // If interacting with Pools that hold WFUSE, it is possible to both send and receive FUSE directly: the Vault will do
-    // the wrapping and unwrapping. To enable this mechanism, the IAsset sentinel value (the zero address) must be
-    // passed in the `assets` array instead of the WFUSE address. Note that it is possible to combine FUSE and WFUSE in the
-    // same swap. Any excess FUSE will be sent back to the caller (not the sender, which is relevant for relayers).
+    // If interacting with Pools that hold WFUSE, it is possible to both send and receive FUSE directly: the Vault will
+    // do the wrapping and unwrapping. To enable this mechanism, the IAsset sentinel value (the zero address) must be
+    // passed in the `assets` array instead of the WFUSE address. Note that it is possible to combine FUSE and WFUSE in
+    // the same swap. Any excess FUSE will be sent back to the caller (not the sender, which is relevant for relayers).
     //
     // Finally, Internal Balance can be used when either sending or receiving tokens.
 
@@ -601,8 +601,8 @@ interface IVault is IVaultPartial, ISignaturesValidator, ITemporarilyPausable {
      * @dev Simulates a call to `batchSwap`, returning an array of Vault asset deltas. Calls to `swap` cannot be
      * simulated directly, but an equivalent `batchSwap` call can and will yield the exact same result.
      *
-     * Each element in the array corresponds to the asset at the same index, and indicates the number of tokens (or FUSE)
-     * the Vault would take from the sender (if positive) or send to the recipient (if negative). The arguments it
+     * Each element in the array corresponds to the asset at the same index, and indicates the number of tokens (or
+     * FUSE) the Vault would take from the sender (if positive) or send to the recipient (if negative). The arguments it
      * receives are the same that an equivalent `batchSwap` call would receive.
      *
      * Unlike `batchSwap`, this function performs no checks on the sender or recipient field in the `funds` struct.

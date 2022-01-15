@@ -52,7 +52,11 @@ contract Vault is VaultAuthorization, FlashLoans, Swaps {
         IWFUSE wfuse,
         uint256 pauseWindowDuration,
         uint256 bufferPeriodDuration
-    ) VaultAuthorization(authorizer) AssetHelpers(wfuse) TemporarilyPausable(pauseWindowDuration, bufferPeriodDuration) {
+    )
+        VaultAuthorization(authorizer)
+        AssetHelpers(wfuse)
+        TemporarilyPausable(pauseWindowDuration, bufferPeriodDuration)
+    {
         // solhint-disable-previous-line no-empty-blocks
     }
 

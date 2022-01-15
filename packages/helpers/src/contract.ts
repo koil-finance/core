@@ -24,7 +24,7 @@ export type ContractDeploymentParams = {
 // a different package, use `deploy('vault/Vault')`, assuming the Vault's package is @koil-finance/vault.
 export async function deploy(
   contract: string,
-  { from, args, overrides, libraries }: ContractDeploymentParams = {}
+  { from, args, libraries }: ContractDeploymentParams = {}
 ): Promise<Contract> {
   if (!args) args = [];
   if (!from) from = (await ethers.getSigners())[0];
@@ -33,7 +33,7 @@ export async function deploy(
   if (libraries !== undefined) artifact.bytecode = linkBytecode(artifact, libraries);
 
   const factory = new ethers.ContractFactory(artifact.abi, artifact.bytecode, from);
-  const instance = await factory.deploy(...args, overrides);
+  const instance = await factory.deploy(...args);
 
   return deployedAt(contract, instance.address);
 }

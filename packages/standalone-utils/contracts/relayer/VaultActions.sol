@@ -192,7 +192,9 @@ abstract contract VaultActions is IBaseRelayerLibrary {
             if (request.toInternalBalance) {
                 trackedTokens[i] = _asIERC20(asset);
             } else {
-                initialRecipientBalances[i] = _isFUSE(asset) ? recipient.balance : _asIERC20(asset).balanceOf(recipient);
+                initialRecipientBalances[i] = _isFUSE(asset)
+                    ? recipient.balance
+                    : _asIERC20(asset).balanceOf(recipient);
             }
         }
         if (request.toInternalBalance) {

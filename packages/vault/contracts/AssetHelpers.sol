@@ -33,8 +33,8 @@ abstract contract AssetHelpers {
     }
 
     /**
-     * @dev Translates `asset` into an equivalent IERC20 token address. If `asset` represents FUSE, it will be translated
-     * to the WFUSE contract.
+     * @dev Translates `asset` into an equivalent IERC20 token address.
+     * If `asset` represents FUSE, it will be translated to the WFUSE contract.
      */
     function _translateToIERC20(IAsset asset) internal view returns (IERC20) {
         return _isFUSE(asset) ? _WFUSE() : _asIERC20(asset);
@@ -52,8 +52,9 @@ abstract contract AssetHelpers {
     }
 
     /**
-     * @dev Interprets `asset` as an IERC20 token. This function should only be called on `asset` if `_isFUSE` previously
-     * returned false for it, that is, if `asset` is guaranteed not to be the FUSE sentinel value.
+     * @dev Interprets `asset` as an IERC20 token.
+     * This function should only be called on `asset` if `_isFUSE` previously returned false for it,
+     * that is, if `asset` is guaranteed not to be the FUSE sentinel value.
      */
     function _asIERC20(IAsset asset) internal pure returns (IERC20) {
         return IERC20(address(asset));
