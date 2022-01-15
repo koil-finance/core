@@ -1,0 +1,79 @@
+// SPDX!-License-Identifier: GPL-3.0-or-later
+
+pragma solidity ^0.7.0;
+
+import "@koil-finance/solidity-utils/contracts/helpers/WordCodec.sol";
+import "@koil-finance/solidity-utils/contracts/helpers/KoilErrors.sol";
+
+/**
+ * Price rate caches are used to avoid querying the price rate for a token every time we need to work with it. It is
+ * useful for slow changing rates, such as those that arise from interest-bearing tokens (e.g. waDAI into DAI).
+ *
+ * The cache data is packed into a single bytes32 value with the following structure:
+ * [   expires   | duration | price rate value ]
+ * [   uint64    |  uint64  |      uint128     ]
+ * [ MSB                                   LSB ]
+ *
+ *
+ * 'rate' is an 18 decimal fixed point number, supporting rates of up to ~3e20. 'expires' is a Unix timestamp, and
+ * 'duration' is expressed in seconds.
+ */
+library PriceRateCache {
+    using WordCodec for bytes32;
+
+    uint256 private constant _PRICE_RATE_CACHE_VALUE_OFFSET = 0;
+    uint256 private constant _PRICE_RATE_CACHE_DURATION_OFFSET = 128;
+    uint256 private constant _PRICE_RATE_CACHE_EXPIRES_OFFSET = 128 + 64;
+
+    /**
+     * @dev Returns the rate of a price rate cache.
+     */
+    function getRate(bytes32 cache) internal pure returns (uint256) {
+        return cache.decodeUint128(_PRICE_RATE_CACHE_VALUE_OFFSET);
+    }
+
+    /**
+     * @dev Returns the duration of a price rate cache.
+     */
+    function getDuration(bytes32 cache) internal pure returns (uint256) {
+        return cache.decodeUint64(_PRICE_RATE_CACHE_DURATION_OFFSET);
+    }
+
+    /**
+     * @dev Returns the duration and expiration time of a price rate cache.
+     */
+    function getTimestamps(bytes32 cache) internal pure returns (uint256 duration, uint256 expires) {
+        duration = getDuration(cache);
+        expires = cache.decodeUint64(_PRICE_RATE_CACHE_EXPIRES_OFFSET);
+    }
+
+    /**
+     * @dev Encodes rate and duration into a price rate cache. The expiration time is computed automatically, counting
+     * from the current time.
+     */
+    function encode(uint256 rate, uint256 duration) internal view returns (bytes32) {
+        _require(rate < 2**128, Errors.PRICE_RATE_OVERFLOW);
+
+        // solhint-disable not-rely-on-time
+        return
+            WordCodec.encodeUint(uint128(rate), _PRICE_RATE_CACHE_VALUE_OFFSET) |
+            WordCodec.encodeUint(uint64(duration), _PRICE_RATE_CACHE_DURATION_OFFSET) |
+            WordCodec.encodeUint(uint64(block.timestamp + duration), _PRICE_RATE_CACHE_EXPIRES_OFFSET);
+    }
+
+    /**
+     * @dev Returns rate, duration and expiration time of a price rate cache.
+     */
+    function decode(bytes32 cache)
+        internal
+        pure
+        returns (
+            uint256 rate,
+            uint256 duration,
+            uint256 expires
+        )
+    {
+        rate = getRate(cache);
+        (duration, expires) = getTimestamps(cache);
+    }
+}
