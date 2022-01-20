@@ -2,7 +2,7 @@
   "name": "@koil-finance/helpers",
   "description": "Internal helpers",
   "private": true,
-  "version": "1.0.3",
+  "version": "1.1.0",
   "scripts": {
     "lint": "yarn lint:typescript",
     "lint:typescript": "eslint . --ext .ts --ignore-path ../../.eslintignore  --max-warnings 0"

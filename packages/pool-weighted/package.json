@@ -1,6 +1,6 @@
 {
   "name": "@koil-finance/pool-weighted",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Koil Finance Weighted Pools",
   "files": [
     "contracts/**/*",

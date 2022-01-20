@@ -1,6 +1,6 @@
 {
   "name": "@koil-finance/vault",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Koil Finance Vault contract and core interfaces",
   "files": [
     "contracts/**/*",
