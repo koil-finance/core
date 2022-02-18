@@ -132,7 +132,7 @@ chai.use(function (chai, utils) {
           if (KoilErrors.isErrorCode(actualErrorCode)) {
             actualReason = KoilErrors.parseErrorCode(actualErrorCode);
           } else {
-            if (actualErrorCode.includes('BAL#')) {
+            if (actualErrorCode.includes('KOIL#')) {
               // If we failed to decode the error but it looks like a Koil error code
               // then it might be a Koil error we don't know about yet.
               actualReason = 'Could not match a Koil error message';

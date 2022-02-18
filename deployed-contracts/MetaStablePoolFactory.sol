@@ -1,4 +1,4 @@
-// File @koil-finance/solidity-utils/contracts/openzeppelin/IERC20.sol@v1.0.0
+// File @koil-finance/solidity-utils/contracts/openzeppelin/IERC20.sol@v1.0.1
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
 
@@ -84,7 +84,7 @@ interface IERC20 {
 }
 
 
-// File @koil-finance/solidity-utils/contracts/helpers/ISignaturesValidator.sol@v1.0.0
+// File @koil-finance/solidity-utils/contracts/helpers/ISignaturesValidator.sol@v1.0.1
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
 
@@ -106,7 +106,7 @@ interface ISignaturesValidator {
 }
 
 
-// File @koil-finance/solidity-utils/contracts/helpers/ITemporarilyPausable.sol@v1.0.0
+// File @koil-finance/solidity-utils/contracts/helpers/ITemporarilyPausable.sol@v1.0.1
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
 
@@ -135,7 +135,7 @@ interface ITemporarilyPausable {
 }
 
 
-// File @koil-finance/solidity-utils/contracts/misc/IWFUSE.sol@v1.0.0
+// File @koil-finance/solidity-utils/contracts/misc/IWFUSE.sol@v1.0.1
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
 
@@ -152,7 +152,7 @@ interface IWFUSE is IERC20 {
 }
 
 
-// File @koil-finance/vault/contracts/interfaces/IAuthorizer.sol@v1.0.0
+// File @koil-finance/vault/contracts/interfaces/IAuthorizer.sol@v1.0.1
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
 
@@ -170,9 +170,10 @@ interface IAuthorizer {
 }
 
 
-// File @koil-finance/vault/contracts/interfaces/IVaultPartial.sol@v1.0.0
+// File @koil-finance/vault/contracts/interfaces/IVaultPartial.sol@v1.0.1
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
+pragma solidity ^0.7.0;
 
 interface IVaultPartial {
     /**
@@ -194,7 +195,7 @@ interface IVaultPartial {
 }
 
 
-// File @koil-finance/vault/contracts/interfaces/IAsset.sol@v1.0.0
+// File @koil-finance/vault/contracts/interfaces/IAsset.sol@v1.0.1
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
 
@@ -212,7 +213,7 @@ interface IAsset {
 }
 
 
-// File @koil-finance/vault/contracts/interfaces/IFlashLoanRecipient.sol@v1.0.0
+// File @koil-finance/vault/contracts/interfaces/IFlashLoanRecipient.sol@v1.0.1
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
 
@@ -239,9 +240,11 @@ interface IFlashLoanRecipient {
 }
 
 
-// File @koil-finance/vault/contracts/interfaces/IProtocolFeesCollector.sol@v1.0.0
+// File @koil-finance/vault/contracts/interfaces/IProtocolFeesCollector.sol@v1.0.1
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
+
+pragma solidity ^0.7.0;
 
 
 interface IProtocolFeesCollector {
@@ -270,9 +273,11 @@ interface IProtocolFeesCollector {
 }
 
 
-// File @koil-finance/vault/contracts/interfaces/IVault.sol@v1.0.0
+// File @koil-finance/vault/contracts/interfaces/IVault.sol@v1.0.1
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
+pragma solidity ^0.7.0;
+
 
 
 
@@ -383,9 +388,9 @@ interface IVault is IVaultPartial, ISignaturesValidator, ITemporarilyPausable {
     // Increases the Internal Balance of the `recipient` account by transferring tokens from the corresponding
     // `sender`. The sender must have allowed the Vault to use their tokens via `IERC20.approve()`.
     //
-    // FUSE can be used by passing the FUSE sentinel value as the asset and forwarding FUSE in the call: it will be wrapped
-    // and deposited as WFUSE. Any FUSE amount remaining will be sent back to the caller (not the sender, which is
-    // relevant for relayers).
+    // FUSE can be used by passing the FUSE sentinel value as the asset and forwarding FUSE in the call:
+    // it will be wrapped and deposited as WFUSE. Any FUSE amount remaining will be sent back to the caller
+    // (not the sender, which is relevant for relayers).
     //
     // Emits an `InternalBalanceChanged` event.
     //
@@ -393,8 +398,8 @@ interface IVault is IVaultPartial, ISignaturesValidator, ITemporarilyPausable {
     // - WITHDRAW_INTERNAL
     // Decreases the Internal Balance of the `sender` account by transferring tokens to the `recipient`.
     //
-    // FUSE can be used by passing the FUSE sentinel value as the asset. This will deduct WFUSE instead, unwrap it and send
-    // it to the recipient as FUSE.
+    // FUSE can be used by passing the FUSE sentinel value as the asset. This will deduct WFUSE instead,
+    // unwrap it and send it to the recipient as FUSE.
     //
     // Emits an `InternalBalanceChanged` event.
     //
@@ -587,15 +592,15 @@ interface IVault is IVaultPartial, ISignaturesValidator, ITemporarilyPausable {
      * to send for each asset. The amounts to send are decided by the Pool and not the Vault: it just enforces
      * these maximums.
      *
-     * If joining a Pool that holds WFUSE, it is possible to send FUSE directly: the Vault will do the wrapping. To enable
-     * this mechanism, the IAsset sentinel value (the zero address) must be passed in the `assets` array instead of the
-     * WFUSE address. Note that it is not possible to combine FUSE and WFUSE in the same join. Any excess FUSE will be sent
-     * back to the caller (not the sender, which is important for relayers).
+     * If joining a Pool that holds WFUSE, it is possible to send FUSE directly: the Vault will do the wrapping.
+     * To enable this mechanism, the IAsset sentinel value (the zero address) must be passed in the `assets` array
+     * instead of the WFUSE address. Note that it is not possible to combine FUSE and WFUSE in the same join.
+     * Any excess FUSE will be sent back to the caller (not the sender, which is important for relayers).
      *
      * `assets` must have the same length and order as the array returned by `getPoolTokens`. This prevents issues when
      * interacting with Pools that register and deregister tokens frequently. If sending FUSE however, the array must be
-     * sorted *before* replacing the WFUSE address with the FUSE sentinel value (the zero address), which means the final
-     * `assets` array might not be sorted. Pools with no registered tokens cannot be joined.
+     * sorted *before* replacing the WFUSE address with the FUSE sentinel value (the zero address),
+     * which means the final `assets` array might not be sorted. Pools with no registered tokens cannot be joined.
      *
      * If `fromInternalBalance` is true, the caller's Internal Balance will be preferred: ERC20 transfers will only
      * be made for the difference between the requested amount and Internal Balance (if any). Note that FUSE cannot be
@@ -724,10 +729,10 @@ interface IVault is IVaultPartial, ISignaturesValidator, ITemporarilyPausable {
     // Additionally, a 'deadline' timestamp can also be provided, forcing the swap to fail if it occurs after
     // this point in time (e.g. if the transaction failed to be included in a block promptly).
     //
-    // If interacting with Pools that hold WFUSE, it is possible to both send and receive FUSE directly: the Vault will do
-    // the wrapping and unwrapping. To enable this mechanism, the IAsset sentinel value (the zero address) must be
-    // passed in the `assets` array instead of the WFUSE address. Note that it is possible to combine FUSE and WFUSE in the
-    // same swap. Any excess FUSE will be sent back to the caller (not the sender, which is relevant for relayers).
+    // If interacting with Pools that hold WFUSE, it is possible to both send and receive FUSE directly: the Vault will
+    // do the wrapping and unwrapping. To enable this mechanism, the IAsset sentinel value (the zero address) must be
+    // passed in the `assets` array instead of the WFUSE address. Note that it is possible to combine FUSE and WFUSE in
+    // the same swap. Any excess FUSE will be sent back to the caller (not the sender, which is relevant for relayers).
     //
     // Finally, Internal Balance can be used when either sending or receiving tokens.
 
@@ -867,8 +872,8 @@ interface IVault is IVaultPartial, ISignaturesValidator, ITemporarilyPausable {
      * @dev Simulates a call to `batchSwap`, returning an array of Vault asset deltas. Calls to `swap` cannot be
      * simulated directly, but an equivalent `batchSwap` call can and will yield the exact same result.
      *
-     * Each element in the array corresponds to the asset at the same index, and indicates the number of tokens (or FUSE)
-     * the Vault would take from the sender (if positive) or send to the recipient (if negative). The arguments it
+     * Each element in the array corresponds to the asset at the same index, and indicates the number of tokens (or
+     * FUSE) the Vault would take from the sender (if positive) or send to the recipient (if negative). The arguments it
      * receives are the same that an equivalent `batchSwap` call would receive.
      *
      * Unlike `batchSwap`, this function performs no checks on the sender or recipient field in the `funds` struct.
@@ -1008,7 +1013,7 @@ interface IVault is IVaultPartial, ISignaturesValidator, ITemporarilyPausable {
 }
 
 
-// File @koil-finance/solidity-utils/contracts/helpers/KoilErrors.sol@v1.0.0
+// File @koil-finance/solidity-utils/contracts/helpers/KoilErrors.sol@v1.0.1
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
 
@@ -1029,7 +1034,7 @@ function _require(bool condition, uint256 errorCode) pure {
  */
 function _revert(uint256 errorCode) pure {
     // We're going to dynamically create a revert string based on the error code, with the following format:
-    // 'BAL#{errorCode}'
+    // 'KOIL#{errorCode}'
     // where the code is left-padded with zeroes to three digits (so they range from 000 to 999).
     //
     // We don't have revert strings embedded in the contract to save bytecode size: it takes much less space to store a
@@ -1051,7 +1056,7 @@ function _revert(uint256 errorCode) pure {
         errorCode := div(errorCode, 10)
         let hundreds := add(mod(errorCode, 10), 0x30)
 
-        // With the individual characters, we can now construct the full string. The "BAL#" part is a known constant
+        // With the individual characters, we can now construct the full string. The "KOIL#" part is a known constant
         // (0x42414c23): we simply shift this by 24 (to provide space for the 3 bytes of the error code), and add the
         // characters to it, each shifted by a multiple of 8.
         // The revert reason is then shifted left by 200 bits (256 minus the length of the string, 7 characters * 8 bits
@@ -1235,7 +1240,7 @@ library Errors {
 }
 
 
-// File @koil-finance/solidity-utils/contracts/helpers/CodeDeployer.sol@v1.0.0
+// File @koil-finance/solidity-utils/contracts/helpers/CodeDeployer.sol@v1.0.1
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
 
@@ -1311,9 +1316,11 @@ library CodeDeployer {
 }
 
 
-// File @koil-finance/solidity-utils/contracts/helpers/BaseSplitCodeFactory.sol@v1.0.0
+// File @koil-finance/solidity-utils/contracts/helpers/BaseSplitCodeFactory.sol@v1.0.1
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
+
+pragma solidity ^0.7.0;
 
 
 /**
@@ -1514,9 +1521,11 @@ abstract contract BaseSplitCodeFactory {
 }
 
 
-// File @koil-finance/pool-utils/contracts/factories/BasePoolSplitCodeFactory.sol@v1.0.0
+// File @koil-finance/pool-utils/contracts/factories/BasePoolSplitCodeFactory.sol@v1.0.1
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
+
+pragma solidity ^0.7.0;
 
 
 /**
@@ -1557,9 +1566,11 @@ abstract contract BasePoolSplitCodeFactory is BaseSplitCodeFactory {
 }
 
 
-// File @koil-finance/pool-utils/contracts/factories/FactoryWidePauseWindow.sol@v1.0.0
+// File @koil-finance/pool-utils/contracts/factories/FactoryWidePauseWindow.sol@v1.0.1
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
+
+pragma solidity ^0.7.0;
 
 /**
  * @dev Utility to create Pool factories for Pools that use the `TemporarilyPausable` contract.
@@ -1608,9 +1619,11 @@ contract FactoryWidePauseWindow {
 }
 
 
-// File @koil-finance/pool-utils/contracts/interfaces/IPriceOracle.sol@v1.0.0
+// File @koil-finance/pool-utils/contracts/interfaces/IPriceOracle.sol@v1.0.1
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
+
+pragma solidity ^0.7.0;
 
 /**
  * @dev Interface for querying historical data from a Pool that can be used as a Price Oracle.
@@ -1693,7 +1706,7 @@ interface IPriceOracle {
 }
 
 
-// File @koil-finance/pool-utils/contracts/interfaces/IPoolPriceOracle.sol@v1.0.0
+// File @koil-finance/pool-utils/contracts/interfaces/IPoolPriceOracle.sol@v1.0.1
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
 
@@ -1723,7 +1736,7 @@ interface IPoolPriceOracle {
 }
 
 
-// File @koil-finance/pool-utils/contracts/oracle/Buffer.sol@v1.0.0
+// File @koil-finance/pool-utils/contracts/oracle/Buffer.sol@v1.0.1
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
 
@@ -1764,7 +1777,7 @@ library Buffer {
 }
 
 
-// File @koil-finance/solidity-utils/contracts/helpers/WordCodec.sol@v1.0.0
+// File @koil-finance/solidity-utils/contracts/helpers/WordCodec.sol@v1.0.1
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
 
@@ -2099,7 +2112,7 @@ library WordCodec {
 }
 
 
-// File @koil-finance/pool-utils/contracts/oracle/Samples.sol@v1.0.0
+// File @koil-finance/pool-utils/contracts/oracle/Samples.sol@v1.0.1
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
 
@@ -2303,7 +2316,7 @@ library Samples {
 }
 
 
-// File @koil-finance/solidity-utils/contracts/math/LogExpMath.sol@v1.0.0
+// File @koil-finance/solidity-utils/contracts/math/LogExpMath.sol@v1.0.1
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
 
@@ -2807,7 +2820,7 @@ library LogExpMath {
 }
 
 
-// File @koil-finance/solidity-utils/contracts/helpers/LogCompression.sol@v1.0.0
+// File @koil-finance/solidity-utils/contracts/helpers/LogCompression.sol@v1.0.1
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
 
@@ -2853,9 +2866,11 @@ library LogCompression {
 }
 
 
-// File @koil-finance/pool-utils/contracts/oracle/QueryProcessor.sol@v1.0.0
+// File @koil-finance/pool-utils/contracts/oracle/QueryProcessor.sol@v1.0.1
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
+
+pragma solidity ^0.7.0;
 
 
 
@@ -3054,9 +3069,11 @@ library QueryProcessor {
 }
 
 
-// File @koil-finance/pool-utils/contracts/oracle/PoolPriceOracle.sol@v1.0.0
+// File @koil-finance/pool-utils/contracts/oracle/PoolPriceOracle.sol@v1.0.1
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
+
+pragma solidity ^0.7.0;
 
 
 
@@ -3239,7 +3256,7 @@ abstract contract PoolPriceOracle is IPoolPriceOracle, IPriceOracle {
 }
 
 
-// File @koil-finance/pool-utils/contracts/interfaces/IRateProvider.sol@v1.0.0
+// File @koil-finance/pool-utils/contracts/interfaces/IRateProvider.sol@v1.0.1
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
 
@@ -3254,7 +3271,7 @@ interface IRateProvider {
 }
 
 
-// File @koil-finance/solidity-utils/contracts/math/FixedPoint.sol@v1.0.0
+// File @koil-finance/solidity-utils/contracts/math/FixedPoint.sol@v1.0.1
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
 
@@ -3404,7 +3421,7 @@ library FixedPoint {
 }
 
 
-// File @koil-finance/solidity-utils/contracts/helpers/InputHelpers.sol@v1.0.0
+// File @koil-finance/solidity-utils/contracts/helpers/InputHelpers.sol@v1.0.1
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
 
@@ -3447,7 +3464,7 @@ library InputHelpers {
 }
 
 
-// File @koil-finance/solidity-utils/contracts/math/Math.sol@v1.0.0
+// File @koil-finance/solidity-utils/contracts/math/Math.sol@v1.0.1
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
 
@@ -3546,7 +3563,7 @@ library Math {
 }
 
 
-// File @koil-finance/solidity-utils/contracts/helpers/TemporarilyPausable.sol@v1.0.0
+// File @koil-finance/solidity-utils/contracts/helpers/TemporarilyPausable.sol@v1.0.1
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
 
@@ -3672,7 +3689,7 @@ abstract contract TemporarilyPausable is ITemporarilyPausable {
 }
 
 
-// File @koil-finance/solidity-utils/contracts/openzeppelin/SafeMath.sol@v1.0.0
+// File @koil-finance/solidity-utils/contracts/openzeppelin/SafeMath.sol@v1.0.1
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
 
@@ -3742,7 +3759,7 @@ library SafeMath {
 }
 
 
-// File @koil-finance/solidity-utils/contracts/openzeppelin/ERC20.sol@v1.0.0
+// File @koil-finance/solidity-utils/contracts/openzeppelin/ERC20.sol@v1.0.1
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
 
@@ -4068,9 +4085,11 @@ contract ERC20 is IERC20 {
 }
 
 
-// File @koil-finance/vault/contracts/interfaces/IPoolSwapStructs.sol@v1.0.0
+// File @koil-finance/vault/contracts/interfaces/IPoolSwapStructs.sol@v1.0.1
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
+
+pragma solidity ^0.7.0;
 
 interface IPoolSwapStructs {
     // This is not really an interface - it just defines common structs used by other interfaces: IGeneralPool and
@@ -4112,9 +4131,11 @@ interface IPoolSwapStructs {
 }
 
 
-// File @koil-finance/vault/contracts/interfaces/IBasePool.sol@v1.0.0
+// File @koil-finance/vault/contracts/interfaces/IBasePool.sol@v1.0.1
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
+
+pragma solidity ^0.7.0;
 
 
 /**
@@ -4190,9 +4211,11 @@ interface IBasePool is IPoolSwapStructs {
 }
 
 
-// File @koil-finance/pool-utils/contracts/interfaces/IAssetManager.sol@v1.0.0
+// File @koil-finance/pool-utils/contracts/interfaces/IAssetManager.sol@v1.0.1
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
+
+pragma solidity ^0.7.0;
 
 interface IAssetManager {
     /**
@@ -4258,7 +4281,7 @@ interface IAssetManager {
 }
 
 
-// File @koil-finance/solidity-utils/contracts/openzeppelin/IERC20Permit.sol@v1.0.0
+// File @koil-finance/solidity-utils/contracts/openzeppelin/IERC20Permit.sol@v1.0.1
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
 
@@ -4321,7 +4344,7 @@ interface IERC20Permit {
 }
 
 
-// File @koil-finance/solidity-utils/contracts/openzeppelin/EIP712.sol@v1.0.0
+// File @koil-finance/solidity-utils/contracts/openzeppelin/EIP712.sol@v1.0.1
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
 
@@ -4412,7 +4435,7 @@ abstract contract EIP712 {
 }
 
 
-// File @koil-finance/solidity-utils/contracts/openzeppelin/ERC20Permit.sol@v1.0.0
+// File @koil-finance/solidity-utils/contracts/openzeppelin/ERC20Permit.sol@v1.0.1
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
 
@@ -4488,7 +4511,7 @@ abstract contract ERC20Permit is ERC20, IERC20Permit, EIP712 {
 }
 
 
-// File @koil-finance/pool-utils/contracts/KoilPoolToken.sol@v1.0.0
+// File @koil-finance/pool-utils/contracts/KoilPoolToken.sol@v1.0.1
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
 
@@ -4589,7 +4612,7 @@ contract KoilPoolToken is ERC20Permit {
 }
 
 
-// File @koil-finance/solidity-utils/contracts/helpers/IAuthentication.sol@v1.0.0
+// File @koil-finance/solidity-utils/contracts/helpers/IAuthentication.sol@v1.0.1
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
 
@@ -4603,7 +4626,7 @@ interface IAuthentication {
 }
 
 
-// File @koil-finance/solidity-utils/contracts/helpers/Authentication.sol@v1.0.0
+// File @koil-finance/solidity-utils/contracts/helpers/Authentication.sol@v1.0.1
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
 
@@ -4662,7 +4685,7 @@ abstract contract Authentication is IAuthentication {
 }
 
 
-// File @koil-finance/pool-utils/contracts/BasePoolAuthorization.sol@v1.0.0
+// File @koil-finance/pool-utils/contracts/BasePoolAuthorization.sol@v1.0.1
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
 
@@ -4712,9 +4735,11 @@ abstract contract BasePoolAuthorization is Authentication {
 }
 
 
-// File @koil-finance/pool-utils/contracts/BasePool.sol@v1.0.0
+// File @koil-finance/pool-utils/contracts/BasePool.sol@v1.0.1
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
+
+pragma solidity ^0.7.0;
 
 
 
@@ -5403,9 +5428,11 @@ abstract contract BasePool is IBasePool, BasePoolAuthorization, KoilPoolToken, T
 }
 
 
-// File @koil-finance/vault/contracts/interfaces/IGeneralPool.sol@v1.0.0
+// File @koil-finance/vault/contracts/interfaces/IGeneralPool.sol@v1.0.1
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
+
+pragma solidity ^0.7.0;
 
 /**
  * @dev IPools with the General specialization setting should implement this interface.
@@ -5428,9 +5455,11 @@ interface IGeneralPool is IBasePool {
 }
 
 
-// File @koil-finance/pool-utils/contracts/BaseGeneralPool.sol@v1.0.0
+// File @koil-finance/pool-utils/contracts/BaseGeneralPool.sol@v1.0.1
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
+
+pragma solidity ^0.7.0;
 
 
 /**
@@ -5541,9 +5570,11 @@ abstract contract BaseGeneralPool is IGeneralPool, BasePool {
 }
 
 
-// File @koil-finance/vault/contracts/interfaces/IMinimalSwapInfoPool.sol@v1.0.0
+// File @koil-finance/vault/contracts/interfaces/IMinimalSwapInfoPool.sol@v1.0.1
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
+
+pragma solidity ^0.7.0;
 
 /**
  * @dev Pool contracts with the MinimalSwapInfo or TwoToken specialization settings should implement this interface.
@@ -5565,9 +5596,11 @@ interface IMinimalSwapInfoPool is IBasePool {
 }
 
 
-// File @koil-finance/pool-utils/contracts/BaseMinimalSwapInfoPool.sol@v1.0.0
+// File @koil-finance/pool-utils/contracts/BaseMinimalSwapInfoPool.sol@v1.0.1
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
+
+pragma solidity ^0.7.0;
 
 
 /**
@@ -6280,6 +6313,8 @@ library StablePoolUserData {
 // File contracts/StablePool.sol
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
+
+pragma solidity ^0.7.0;
 
 
 
@@ -7285,6 +7320,8 @@ contract StableOracleMath {
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
 
+pragma solidity ^0.7.0;
+
 
 
 
@@ -7906,6 +7943,8 @@ contract MetaStablePool is StablePool, StableOracleMath, PoolPriceOracle {
 // File contracts/meta/MetaStablePoolFactory.sol
 
 // SPDX-License-Identifier: GPL-3.0-or-later
+
+pragma solidity ^0.7.0;
 
 
 contract MetaStablePoolFactory is BasePoolSplitCodeFactory, FactoryWidePauseWindow {

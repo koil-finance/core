@@ -148,20 +148,20 @@ export class KoilErrors {
   }
 
   static isErrorCode = (error: string): boolean => {
-    if (!error.includes('BAL#')) return false;
+    if (!error.includes('KOIL#')) return false;
 
-    const errorCode = error.replace('BAL#', '');
+    const errorCode = error.replace('KOIL#', '');
     return Object.keys(koilErrorCodes).includes(errorCode);
   };
 
   /**
    * Decodes a Koil error code into the corresponding reason
-   * @param error - a Koil error code of the form `BAL#000`
+   * @param error - a Koil error code of the form `KOIL#000`
    * @returns The decoded error reason
    */
   static parseErrorCode = (error: string): string => {
-    if (!error.includes('BAL#')) throw new Error('Error code not found');
-    const errorCode = error.replace('BAL#', '');
+    if (!error.includes('KOIL#')) throw new Error('Error code not found');
+    const errorCode = error.replace('KOIL#', '');
 
     const actualError = koilErrorCodes[errorCode];
 
@@ -172,7 +172,7 @@ export class KoilErrors {
 
   /**
    * Decodes a Koil error code into the corresponding reason
-   * @param error - a Koil error code of the form `BAL#000`
+   * @param error - a Koil error code of the form `KOIL#000`
    * @returns The decoded error reason if passed a valid error code, otherwise returns passed input
    */
   static tryParseErrorCode = (error: string): string => {
@@ -192,13 +192,13 @@ export class KoilErrors {
   /**
    * Encodes an error string into the corresponding error code
    * @param error - a Koil error message string
-   * @returns a Koil error code of the form `BAL#000`
+   * @returns a Koil error code of the form `KOIL#000`
    */
   static encodeError = (error: string): string => {
     const encodedError = Object.entries(koilErrorCodes).find(([, message]) => message === error);
 
     if (!encodedError) throw Error('Error message not found');
 
-    return `BAL#${encodedError[0]}`;
+    return `KOIL#${encodedError[0]}`;
   };
 }

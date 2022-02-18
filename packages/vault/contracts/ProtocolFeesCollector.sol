@@ -49,7 +49,7 @@ contract ProtocolFeesCollector is IProtocolFeesCollector, Authentication, Reentr
         IERC20[] calldata tokens,
         uint256[] calldata amounts,
         address recipient
-    ) external override nonReentrant authenticate {
+    ) external override nonReentrant(0) authenticate {
         InputHelpers.ensureInputLengthMatch(tokens.length, amounts.length);
 
         for (uint256 i = 0; i < tokens.length; ++i) {

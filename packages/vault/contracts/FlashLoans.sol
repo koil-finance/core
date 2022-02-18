@@ -8,6 +8,7 @@ pragma solidity ^0.7.0;
 pragma experimental ABIEncoderV2;
 
 import "@koil-finance/solidity-utils/contracts/helpers/KoilErrors.sol";
+import "@koil-finance/solidity-utils/contracts/helpers/Authentication.sol";
 import "@koil-finance/solidity-utils/contracts/openzeppelin/IERC20.sol";
 import "@koil-finance/solidity-utils/contracts/openzeppelin/ReentrancyGuard.sol";
 import "@koil-finance/solidity-utils/contracts/openzeppelin/SafeERC20.sol";
@@ -19,7 +20,7 @@ import "./interfaces/IFlashLoanRecipient.sol";
  * @dev Handles Flash Loans through the Vault. Calls the `receiveFlashLoan` hook on the flash loan recipient
  * contract, which implements the `IFlashLoanRecipient` interface.
  */
-abstract contract FlashLoans is Fees, ReentrancyGuard, TemporarilyPausable {
+abstract contract FlashLoans is Fees, ReentrancyGuard, Authentication, TemporarilyPausable {
     using SafeERC20 for IERC20;
 
     function flashLoan(
@@ -27,7 +28,7 @@ abstract contract FlashLoans is Fees, ReentrancyGuard, TemporarilyPausable {
         IERC20[] memory tokens,
         uint256[] memory amounts,
         bytes memory userData
-    ) external override nonReentrant whenNotPaused {
+    ) external override nonReentrant(1) authenticate whenNotPaused {
         InputHelpers.ensureInputLengthMatch(tokens.length, amounts.length);
 
         uint256[] memory feeAmounts = new uint256[](tokens.length);

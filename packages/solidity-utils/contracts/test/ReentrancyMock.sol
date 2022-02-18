@@ -12,18 +12,18 @@ contract ReentrancyMock is ReentrancyGuard {
         counter = 0;
     }
 
-    function callback() external nonReentrant {
+    function callback() external nonReentrant(0) {
         _count();
     }
 
-    function countLocalRecursive(uint256 n) public nonReentrant {
+    function countLocalRecursive(uint256 n) public nonReentrant(0) {
         if (n > 0) {
             _count();
             countLocalRecursive(n - 1);
         }
     }
 
-    function countThisRecursive(uint256 n) public nonReentrant {
+    function countThisRecursive(uint256 n) public nonReentrant(0) {
         if (n > 0) {
             _count();
             // solhint-disable-next-line avoid-low-level-calls
@@ -32,7 +32,7 @@ contract ReentrancyMock is ReentrancyGuard {
         }
     }
 
-    function countAndCall(ReentrancyAttack attacker) public nonReentrant {
+    function countAndCall(ReentrancyAttack attacker) public nonReentrant(0) {
         _count();
         bytes4 func = bytes4(keccak256("callback()"));
         attacker.callSender(func);

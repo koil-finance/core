@@ -18,7 +18,7 @@ abstract contract PoolTokens is ReentrancyGuard, PoolRegistry, AssetManagers {
         bytes32 poolId,
         IERC20[] memory tokens,
         address[] memory assetManagers
-    ) external override nonReentrant whenNotPaused onlyPool(poolId) {
+    ) external override nonReentrant(0) whenNotPaused onlyPool(poolId) {
         InputHelpers.ensureInputLengthMatch(tokens.length, assetManagers.length);
 
         // Validates token addresses and assigns Asset Managers
@@ -46,7 +46,7 @@ abstract contract PoolTokens is ReentrancyGuard, PoolRegistry, AssetManagers {
     function deregisterTokens(bytes32 poolId, IERC20[] memory tokens)
         external
         override
-        nonReentrant
+        nonReentrant(0)
         whenNotPaused
         onlyPool(poolId)
     {

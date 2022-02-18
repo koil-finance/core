@@ -62,7 +62,7 @@ contract KoilRelayer is IKoilRelayer, ReentrancyGuard {
         return _library;
     }
 
-    function multicall(bytes[] calldata data) external payable override nonReentrant returns (bytes[] memory results) {
+    function multicall(bytes[] calldata data) external payable override nonReentrant(0) returns (bytes[] memory results) {
         results = new bytes[](data.length);
         for (uint256 i = 0; i < data.length; i++) {
             results[i] = _library.functionDelegateCall(data[i]);

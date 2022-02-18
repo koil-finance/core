@@ -44,7 +44,7 @@ abstract contract UserBalance is ReentrancyGuard, AssetTransfersHandler, VaultAu
         }
     }
 
-    function manageUserBalance(UserBalanceOp[] memory ops) external payable override nonReentrant {
+    function manageUserBalance(UserBalanceOp[] memory ops) external payable override nonReentrant(0) {
         // We need to track how much of the received FUSE was used and wrapped into WFUSE to return any excess.
         uint256 ethWrapped = 0;
 

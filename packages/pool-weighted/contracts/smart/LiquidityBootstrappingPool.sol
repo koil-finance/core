@@ -155,7 +155,7 @@ contract LiquidityBootstrappingPool is BaseWeightedPool, ReentrancyGuard {
     /**
      * @dev Can pause/unpause trading
      */
-    function setSwapEnabled(bool swapEnabled) external authenticate whenNotPaused nonReentrant {
+    function setSwapEnabled(bool swapEnabled) external authenticate whenNotPaused nonReentrant(0) {
         _setSwapEnabled(swapEnabled);
     }
 
@@ -167,7 +167,7 @@ contract LiquidityBootstrappingPool is BaseWeightedPool, ReentrancyGuard {
         uint256 startTime,
         uint256 endTime,
         uint256[] memory endWeights
-    ) external authenticate whenNotPaused nonReentrant {
+    ) external authenticate whenNotPaused nonReentrant(0) {
         InputHelpers.ensureInputLengthMatch(_getTotalTokens(), endWeights.length);
 
         // If the start time is in the past, "fast forward" to start now

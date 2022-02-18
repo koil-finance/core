@@ -55,7 +55,7 @@ abstract contract PoolRegistry is ReentrancyGuard, VaultAuthorization {
     function registerPool(PoolSpecialization specialization)
         external
         override
-        nonReentrant
+        nonReentrant(0)
         whenNotPaused
         returns (bytes32)
     {

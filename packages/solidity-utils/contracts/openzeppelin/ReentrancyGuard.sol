@@ -39,36 +39,25 @@ abstract contract ReentrancyGuard {
     uint256 private constant _NOT_ENTERED = 1;
     uint256 private constant _ENTERED = 2;
 
-    uint256 private _status;
+    uint256[] private _statusMapping = new uint256[](2);
 
-    constructor() {
-        _status = _NOT_ENTERED;
-    }
+    constructor() {}
 
-    /**
-     * @dev Prevents a contract from calling itself, directly or indirectly.
-     * Calling a `nonReentrant` function from another `nonReentrant`
-     * function is not supported. It is possible to prevent this from happening
-     * by making the `nonReentrant` function external, and make it call a
-     * `private` function that does the actual work.
-     */
-    modifier nonReentrant() {
-        _enterNonReentrant();
+    modifier nonReentrant(uint256 purpose) {
+        _enterNonReentrant(purpose);
         _;
-        _exitNonReentrant();
+        _exitNonReentrant(purpose);
     }
 
-    function _enterNonReentrant() private {
-        // On the first call to nonReentrant, _status will be _NOT_ENTERED
-        _require(_status != _ENTERED, Errors.REENTRANCY);
+    function _enterNonReentrant(uint256 purpose) private {
+        // On the first call to nonReentrant, status will be undefined
+        _require(_statusMapping[purpose] != _ENTERED, Errors.REENTRANCY);
 
         // Any calls to nonReentrant after this point will fail
-        _status = _ENTERED;
+        _statusMapping[purpose] = _ENTERED;
     }
 
-    function _exitNonReentrant() private {
-        // By storing the original value once again, a refund is triggered (see
-        // https://eips.ethereum.org/EIPS/eip-2200)
-        _status = _NOT_ENTERED;
+    function _exitNonReentrant(uint256 purpose) private {
+        _statusMapping[purpose] = _NOT_ENTERED;
     }
 }

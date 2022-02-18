@@ -243,7 +243,7 @@ contract ManagedPool is BaseWeightedPool, ReentrancyGuard {
         uint256 startTime,
         uint256 endTime,
         uint256[] memory endWeights
-    ) external authenticate whenNotPaused nonReentrant {
+    ) external authenticate whenNotPaused nonReentrant(0) {
         InputHelpers.ensureInputLengthMatch(_getTotalTokens(), endWeights.length);
 
         // If the start time is in the past, "fast forward" to start now
@@ -273,7 +273,7 @@ contract ManagedPool is BaseWeightedPool, ReentrancyGuard {
         _downscaleDownArray(collectedFees, _scalingFactors());
     }
 
-    function withdrawCollectedManagementFees(address recipient) external authenticate whenNotPaused nonReentrant {
+    function withdrawCollectedManagementFees(address recipient) external authenticate whenNotPaused nonReentrant(0) {
         (IERC20[] memory tokens, uint256[] memory collectedFees) = getCollectedManagementFees();
 
         getVault().exitPool(

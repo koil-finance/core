@@ -1,9 +1,9 @@
-// File @koil-finance/solidity-utils/contracts/openzeppelin/IERC20.sol@v1.0.0
+// File @koil-finance/solidity-utils/contracts/openzeppelin/IERC20.sol@v1.0.1
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
 
-pragma solidity ^0.7.0;
 pragma experimental ABIEncoderV2;
+pragma solidity ^0.7.0;
 
 /**
  * @dev Interface of the ERC20 standard as defined in the EIP.
@@ -84,7 +84,7 @@ interface IERC20 {
 }
 
 
-// File @koil-finance/solidity-utils/contracts/misc/IWFUSE.sol@v1.0.0
+// File @koil-finance/solidity-utils/contracts/misc/IWFUSE.sol@v1.0.1
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
 
@@ -119,7 +119,7 @@ interface IAuthorizer {
 }
 
 
-// File @koil-finance/solidity-utils/contracts/helpers/KoilErrors.sol@v1.0.0
+// File @koil-finance/solidity-utils/contracts/helpers/KoilErrors.sol@v1.0.1
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
 
@@ -131,45 +131,45 @@ pragma solidity ^0.7.0;
  * @dev Reverts if `condition` is false, with a revert reason containing `errorCode`. Only codes up to 999 are
  * supported.
  */
-    function _require(bool condition, uint256 errorCode) pure {
-        if (!condition) _revert(errorCode);
-    }
+function _require(bool condition, uint256 errorCode) pure {
+    if (!condition) _revert(errorCode);
+}
 
 /**
  * @dev Reverts with a revert reason containing `errorCode`. Only codes up to 999 are supported.
  */
-    function _revert(uint256 errorCode) pure {
-        // We're going to dynamically create a revert string based on the error code, with the following format:
-        // 'BAL#{errorCode}'
-        // where the code is left-padded with zeroes to three digits (so they range from 000 to 999).
-        //
-        // We don't have revert strings embedded in the contract to save bytecode size: it takes much less space to store a
-        // number (8 to 16 bits) than the individual string characters.
-        //
-        // The dynamic string creation algorithm that follows could be implemented in Solidity, but assembly allows for a
-        // much denser implementation, again saving bytecode size. Given this function unconditionally reverts, this is a
-        // safe place to rely on it without worrying about how its usage might affect e.g. memory contents.
-        assembly {
+function _revert(uint256 errorCode) pure {
+    // We're going to dynamically create a revert string based on the error code, with the following format:
+    // 'KOIL#{errorCode}'
+    // where the code is left-padded with zeroes to three digits (so they range from 000 to 999).
+    //
+    // We don't have revert strings embedded in the contract to save bytecode size: it takes much less space to store a
+    // number (8 to 16 bits) than the individual string characters.
+    //
+    // The dynamic string creation algorithm that follows could be implemented in Solidity, but assembly allows for a
+    // much denser implementation, again saving bytecode size. Given this function unconditionally reverts, this is a
+    // safe place to rely on it without worrying about how its usage might affect e.g. memory contents.
+    assembly {
         // First, we need to compute the ASCII representation of the error code. We assume that it is in the 0-999
         // range, so we only need to convert three digits. To convert the digits to ASCII, we add 0x30, the value for
         // the '0' character.
 
-            let units := add(mod(errorCode, 10), 0x30)
+        let units := add(mod(errorCode, 10), 0x30)
 
-            errorCode := div(errorCode, 10)
-            let tenths := add(mod(errorCode, 10), 0x30)
+        errorCode := div(errorCode, 10)
+        let tenths := add(mod(errorCode, 10), 0x30)
 
-            errorCode := div(errorCode, 10)
-            let hundreds := add(mod(errorCode, 10), 0x30)
+        errorCode := div(errorCode, 10)
+        let hundreds := add(mod(errorCode, 10), 0x30)
 
-        // With the individual characters, we can now construct the full string. The "BAL#" part is a known constant
+        // With the individual characters, we can now construct the full string. The "KOIL#" part is a known constant
         // (0x42414c23): we simply shift this by 24 (to provide space for the 3 bytes of the error code), and add the
         // characters to it, each shifted by a multiple of 8.
         // The revert reason is then shifted left by 200 bits (256 minus the length of the string, 7 characters * 8 bits
         // per character = 56) to locate it in the most significant part of the 256 slot (the beginning of a byte
         // array).
 
-            let revertReason := shl(200, add(0x42414c23000000, add(add(units, shl(8, tenths)), shl(16, hundreds))))
+        let revertReason := shl(200, add(0x42414c23000000, add(add(units, shl(8, tenths)), shl(16, hundreds))))
 
         // We can now encode the reason in memory, which can be safely overwritten as we're about to revert. The encoded
         // message will have the following layout:
@@ -177,19 +177,19 @@ pragma solidity ^0.7.0;
 
         // The Solidity revert reason identifier is 0x08c739a0, the function selector of the Error(string) function. We
         // also write zeroes to the next 28 bytes of memory, but those are about to be overwritten.
-            mstore(0x0, 0x08c379a000000000000000000000000000000000000000000000000000000000)
+        mstore(0x0, 0x08c379a000000000000000000000000000000000000000000000000000000000)
         // Next is the offset to the location of the string, which will be placed immediately after (20 bytes away).
-            mstore(0x04, 0x0000000000000000000000000000000000000000000000000000000000000020)
+        mstore(0x04, 0x0000000000000000000000000000000000000000000000000000000000000020)
         // The string length is fixed: 7 characters.
-            mstore(0x24, 7)
+        mstore(0x24, 7)
         // Finally, the string itself is stored.
-            mstore(0x44, revertReason)
+        mstore(0x44, revertReason)
 
         // Even if the string is only 7 bytes long, we need to return a full 32 byte slot containing it. The length of
         // the encoded message is therefore 4 + 32 + 32 + 32 = 100.
-            revert(0, 100)
-        }
+        revert(0, 100)
     }
+}
 
 library Errors {
     // Math
@@ -346,7 +346,7 @@ library Errors {
 }
 
 
-// File @koil-finance/solidity-utils/contracts/helpers/IAuthentication.sol@v1.0.0
+// File @koil-finance/solidity-utils/contracts/helpers/IAuthentication.sol@v1.0.1
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
 
@@ -360,7 +360,7 @@ interface IAuthentication {
 }
 
 
-// File @koil-finance/solidity-utils/contracts/helpers/Authentication.sol@v1.0.0
+// File @koil-finance/solidity-utils/contracts/helpers/Authentication.sol@v1.0.1
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
 
@@ -419,7 +419,7 @@ abstract contract Authentication is IAuthentication {
 }
 
 
-// File @koil-finance/solidity-utils/contracts/helpers/ITemporarilyPausable.sol@v1.0.0
+// File @koil-finance/solidity-utils/contracts/helpers/ITemporarilyPausable.sol@v1.0.1
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
 
@@ -438,17 +438,17 @@ interface ITemporarilyPausable {
      * @dev Returns the current paused state.
      */
     function getPausedState()
-    external
-    view
-    returns (
-        bool paused,
-        uint256 pauseWindowEndTime,
-        uint256 bufferPeriodEndTime
-    );
+        external
+        view
+        returns (
+            bool paused,
+            uint256 pauseWindowEndTime,
+            uint256 bufferPeriodEndTime
+        );
 }
 
 
-// File @koil-finance/solidity-utils/contracts/helpers/TemporarilyPausable.sol@v1.0.0
+// File @koil-finance/solidity-utils/contracts/helpers/TemporarilyPausable.sol@v1.0.1
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
 
@@ -506,14 +506,14 @@ abstract contract TemporarilyPausable is ITemporarilyPausable {
      * Period.
      */
     function getPausedState()
-    external
-    view
-    override
-    returns (
-        bool paused,
-        uint256 pauseWindowEndTime,
-        uint256 bufferPeriodEndTime
-    )
+        external
+        view
+        override
+        returns (
+            bool paused,
+            uint256 pauseWindowEndTime,
+            uint256 bufferPeriodEndTime
+        )
     {
         paused = !_isNotPaused();
         pauseWindowEndTime = _getPauseWindowEndTime();
@@ -574,7 +574,7 @@ abstract contract TemporarilyPausable is ITemporarilyPausable {
 }
 
 
-// File @koil-finance/solidity-utils/contracts/helpers/ISignaturesValidator.sol@v1.0.0
+// File @koil-finance/solidity-utils/contracts/helpers/ISignaturesValidator.sol@v1.0.1
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
 
@@ -596,7 +596,7 @@ interface ISignaturesValidator {
 }
 
 
-// File @koil-finance/solidity-utils/contracts/openzeppelin/EIP712.sol@v1.0.0
+// File @koil-finance/solidity-utils/contracts/openzeppelin/EIP712.sol@v1.0.1
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
 
@@ -687,7 +687,7 @@ abstract contract EIP712 {
 }
 
 
-// File @koil-finance/solidity-utils/contracts/helpers/SignaturesValidator.sol@v1.0.0
+// File @koil-finance/solidity-utils/contracts/helpers/SignaturesValidator.sol@v1.0.1
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
 
@@ -785,13 +785,13 @@ abstract contract SignaturesValidator is ISignaturesValidator, EIP712 {
      * be considered a valid signature in the first place.
      */
     function _signature()
-    internal
-    pure
-    returns (
-        uint8 v,
-        bytes32 r,
-        bytes32 s
-    )
+        internal
+        pure
+        returns (
+            uint8 v,
+            bytes32 r,
+            bytes32 s
+        )
     {
         // v, r and s are appended after the signature deadline, in that order.
         v = uint8(uint256(_decodeExtraCalldataWord(0x20)));
@@ -809,7 +809,7 @@ abstract contract SignaturesValidator is ISignaturesValidator, EIP712 {
         if (result.length > _EXTRA_CALLDATA_LENGTH) {
             // solhint-disable-next-line no-inline-assembly
             assembly {
-            // We simply overwrite the array length with the reduced one.
+                // We simply overwrite the array length with the reduced one.
                 mstore(result, sub(calldatasize(), _EXTRA_CALLDATA_LENGTH))
             }
         }
@@ -829,7 +829,7 @@ abstract contract SignaturesValidator is ISignaturesValidator, EIP712 {
 }
 
 
-// File @koil-finance/solidity-utils/contracts/openzeppelin/ReentrancyGuard.sol@v1.0.0
+// File @koil-finance/solidity-utils/contracts/openzeppelin/ReentrancyGuard.sol@v1.0.1
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
 
@@ -870,37 +870,26 @@ abstract contract ReentrancyGuard {
     uint256 private constant _NOT_ENTERED = 1;
     uint256 private constant _ENTERED = 2;
 
-    uint256 private _status;
+    uint256[] private _statusMapping = new uint256[](2);
 
-    constructor() {
-        _status = _NOT_ENTERED;
-    }
+    constructor() {}
 
-    /**
-     * @dev Prevents a contract from calling itself, directly or indirectly.
-     * Calling a `nonReentrant` function from another `nonReentrant`
-     * function is not supported. It is possible to prevent this from happening
-     * by making the `nonReentrant` function external, and make it call a
-     * `private` function that does the actual work.
-     */
-    modifier nonReentrant() {
-        _enterNonReentrant();
+    modifier nonReentrant(uint256 purpose) {
+        _enterNonReentrant(purpose);
         _;
-        _exitNonReentrant();
+        _exitNonReentrant(purpose);
     }
 
-    function _enterNonReentrant() private {
-        // On the first call to nonReentrant, _status will be _NOT_ENTERED
-        _require(_status != _ENTERED, Errors.REENTRANCY);
+    function _enterNonReentrant(uint256 purpose) private {
+        // On the first call to nonReentrant, status will be undefined
+        _require(_statusMapping[purpose] != _ENTERED, Errors.REENTRANCY);
 
         // Any calls to nonReentrant after this point will fail
-        _status = _ENTERED;
+        _statusMapping[purpose] = _ENTERED;
     }
 
-    function _exitNonReentrant() private {
-        // By storing the original value once again, a refund is triggered (see
-        // https://eips.ethereum.org/EIPS/eip-2200)
-        _status = _NOT_ENTERED;
+    function _exitNonReentrant(uint256 purpose) private {
+        _statusMapping[purpose] = _NOT_ENTERED;
     }
 }
 
@@ -908,6 +897,7 @@ abstract contract ReentrancyGuard {
 // File contracts/interfaces/IVaultPartial.sol
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
+pragma solidity ^0.7.0;
 
 interface IVaultPartial {
     /**
@@ -978,6 +968,8 @@ interface IFlashLoanRecipient {
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
 
+pragma solidity ^0.7.0;
+
 
 interface IProtocolFeesCollector {
     event SwapFeePercentageChanged(uint256 newSwapFeePercentage);
@@ -1008,6 +1000,8 @@ interface IProtocolFeesCollector {
 // File contracts/interfaces/IVault.sol
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
+pragma solidity ^0.7.0;
+
 
 
 
@@ -1118,9 +1112,9 @@ interface IVault is IVaultPartial, ISignaturesValidator, ITemporarilyPausable {
     // Increases the Internal Balance of the `recipient` account by transferring tokens from the corresponding
     // `sender`. The sender must have allowed the Vault to use their tokens via `IERC20.approve()`.
     //
-    // FUSE can be used by passing the FUSE sentinel value as the asset and forwarding FUSE in the call: it will be wrapped
-    // and deposited as WFUSE. Any FUSE amount remaining will be sent back to the caller (not the sender, which is
-    // relevant for relayers).
+    // FUSE can be used by passing the FUSE sentinel value as the asset and forwarding FUSE in the call:
+    // it will be wrapped and deposited as WFUSE. Any FUSE amount remaining will be sent back to the caller
+    // (not the sender, which is relevant for relayers).
     //
     // Emits an `InternalBalanceChanged` event.
     //
@@ -1128,8 +1122,8 @@ interface IVault is IVaultPartial, ISignaturesValidator, ITemporarilyPausable {
     // - WITHDRAW_INTERNAL
     // Decreases the Internal Balance of the `sender` account by transferring tokens to the `recipient`.
     //
-    // FUSE can be used by passing the FUSE sentinel value as the asset. This will deduct WFUSE instead, unwrap it and send
-    // it to the recipient as FUSE.
+    // FUSE can be used by passing the FUSE sentinel value as the asset. This will deduct WFUSE instead,
+    // unwrap it and send it to the recipient as FUSE.
     //
     // Emits an `InternalBalanceChanged` event.
     //
@@ -1279,14 +1273,14 @@ interface IVault is IVaultPartial, ISignaturesValidator, ITemporarilyPausable {
      * `assetManager` is the Pool's token Asset Manager.
      */
     function getPoolTokenInfo(bytes32 poolId, IERC20 token)
-    external
-    view
-    returns (
-        uint256 cash,
-        uint256 managed,
-        uint256 lastChangeBlock,
-        address assetManager
-    );
+        external
+        view
+        returns (
+            uint256 cash,
+            uint256 managed,
+            uint256 lastChangeBlock,
+            address assetManager
+        );
 
     /**
      * @dev Returns a Pool's registered tokens, the total balance for each, and the latest block when *any* of
@@ -1303,13 +1297,13 @@ interface IVault is IVaultPartial, ISignaturesValidator, ITemporarilyPausable {
      * instead.
      */
     function getPoolTokens(bytes32 poolId)
-    external
-    view
-    returns (
-        IERC20[] memory tokens,
-        uint256[] memory balances,
-        uint256 lastChangeBlock
-    );
+        external
+        view
+        returns (
+            IERC20[] memory tokens,
+            uint256[] memory balances,
+            uint256 lastChangeBlock
+        );
 
     /**
      * @dev Called by users to join a Pool, which transfers tokens from `sender` into the Pool's balance. This will
@@ -1322,15 +1316,15 @@ interface IVault is IVaultPartial, ISignaturesValidator, ITemporarilyPausable {
      * to send for each asset. The amounts to send are decided by the Pool and not the Vault: it just enforces
      * these maximums.
      *
-     * If joining a Pool that holds WFUSE, it is possible to send FUSE directly: the Vault will do the wrapping. To enable
-     * this mechanism, the IAsset sentinel value (the zero address) must be passed in the `assets` array instead of the
-     * WFUSE address. Note that it is not possible to combine FUSE and WFUSE in the same join. Any excess FUSE will be sent
-     * back to the caller (not the sender, which is important for relayers).
+     * If joining a Pool that holds WFUSE, it is possible to send FUSE directly: the Vault will do the wrapping.
+     * To enable this mechanism, the IAsset sentinel value (the zero address) must be passed in the `assets` array
+     * instead of the WFUSE address. Note that it is not possible to combine FUSE and WFUSE in the same join.
+     * Any excess FUSE will be sent back to the caller (not the sender, which is important for relayers).
      *
      * `assets` must have the same length and order as the array returned by `getPoolTokens`. This prevents issues when
      * interacting with Pools that register and deregister tokens frequently. If sending FUSE however, the array must be
-     * sorted *before* replacing the WFUSE address with the FUSE sentinel value (the zero address), which means the final
-     * `assets` array might not be sorted. Pools with no registered tokens cannot be joined.
+     * sorted *before* replacing the WFUSE address with the FUSE sentinel value (the zero address),
+     * which means the final `assets` array might not be sorted. Pools with no registered tokens cannot be joined.
      *
      * If `fromInternalBalance` is true, the caller's Internal Balance will be preferred: ERC20 transfers will only
      * be made for the difference between the requested amount and Internal Balance (if any). Note that FUSE cannot be
@@ -1459,10 +1453,10 @@ interface IVault is IVaultPartial, ISignaturesValidator, ITemporarilyPausable {
     // Additionally, a 'deadline' timestamp can also be provided, forcing the swap to fail if it occurs after
     // this point in time (e.g. if the transaction failed to be included in a block promptly).
     //
-    // If interacting with Pools that hold WFUSE, it is possible to both send and receive FUSE directly: the Vault will do
-    // the wrapping and unwrapping. To enable this mechanism, the IAsset sentinel value (the zero address) must be
-    // passed in the `assets` array instead of the WFUSE address. Note that it is possible to combine FUSE and WFUSE in the
-    // same swap. Any excess FUSE will be sent back to the caller (not the sender, which is relevant for relayers).
+    // If interacting with Pools that hold WFUSE, it is possible to both send and receive FUSE directly: the Vault will
+    // do the wrapping and unwrapping. To enable this mechanism, the IAsset sentinel value (the zero address) must be
+    // passed in the `assets` array instead of the WFUSE address. Note that it is possible to combine FUSE and WFUSE in
+    // the same swap. Any excess FUSE will be sent back to the caller (not the sender, which is relevant for relayers).
     //
     // Finally, Internal Balance can be used when either sending or receiving tokens.
 
@@ -1602,8 +1596,8 @@ interface IVault is IVaultPartial, ISignaturesValidator, ITemporarilyPausable {
      * @dev Simulates a call to `batchSwap`, returning an array of Vault asset deltas. Calls to `swap` cannot be
      * simulated directly, but an equivalent `batchSwap` call can and will yield the exact same result.
      *
-     * Each element in the array corresponds to the asset at the same index, and indicates the number of tokens (or FUSE)
-     * the Vault would take from the sender (if positive) or send to the recipient (if negative). The arguments it
+     * Each element in the array corresponds to the asset at the same index, and indicates the number of tokens (or
+     * FUSE) the Vault would take from the sender (if positive) or send to the recipient (if negative). The arguments it
      * receives are the same that an equivalent `batchSwap` call would receive.
      *
      * Unlike `batchSwap`, this function performs no checks on the sender or recipient field in the `funds` struct.
@@ -1747,6 +1741,8 @@ interface IVault is IVaultPartial, ISignaturesValidator, ITemporarilyPausable {
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
 
+pragma solidity ^0.7.0;
+
 
 
 
@@ -1758,11 +1754,11 @@ interface IVault is IVaultPartial, ISignaturesValidator, ITemporarilyPausable {
  * Additionally handles relayer access and approval.
  */
 abstract contract VaultAuthorization is
-IVault,
-ReentrancyGuard,
-Authentication,
-SignaturesValidator,
-TemporarilyPausable
+    IVault,
+    ReentrancyGuard,
+    Authentication,
+    SignaturesValidator,
+    TemporarilyPausable
 {
     // Ideally, we'd store the type hashes as immutable state variables to avoid computing the hash at runtime, but
     // unfortunately immutable variables cannot be used in assembly, so we just keep the precomputed hashes instead.
@@ -1782,7 +1778,7 @@ TemporarilyPausable
     // _SET_RELAYER_TYPE_HASH =
     //     keccak256("SetRelayerApproval(bytes calldata,address sender,uint256 nonce,uint256 deadline)");
     bytes32
-    private constant _SET_RELAYER_TYPE_HASH = 0xa3f865aa351e51cfeb40f5178d1564bb629fe9030b83caf6361d1baaf5b90b5a;
+        private constant _SET_RELAYER_TYPE_HASH = 0xa3f865aa351e51cfeb40f5178d1564bb629fe9030b83caf6361d1baaf5b90b5a;
 
     IAuthorizer private _authorizer;
     mapping(address => mapping(address => bool)) private _approvedRelayers;
@@ -1802,13 +1798,13 @@ TemporarilyPausable
 
     constructor(IAuthorizer authorizer)
         // The Vault is a singleton, so it simply uses its own address to disambiguate action identifiers.
-    Authentication(bytes32(uint256(address(this))))
-    SignaturesValidator("Koil Vault")
+        Authentication(bytes32(uint256(address(this))))
+        SignaturesValidator("Koil Vault")
     {
         _setAuthorizer(authorizer);
     }
 
-    function setAuthorizer(IAuthorizer newAuthorizer) external override nonReentrant authenticate {
+    function setAuthorizer(IAuthorizer newAuthorizer) external override nonReentrant(0) authenticate {
         _setAuthorizer(newAuthorizer);
     }
 
@@ -1825,7 +1821,7 @@ TemporarilyPausable
         address sender,
         address relayer,
         bool approved
-    ) external override nonReentrant whenNotPaused authenticateFor(sender) {
+    ) external override nonReentrant(0) whenNotPaused authenticateFor(sender) {
         _approvedRelayers[sender][relayer] = approved;
         emit RelayerApprovalChanged(relayer, sender, approved);
     }
@@ -1870,38 +1866,38 @@ TemporarilyPausable
         // assembly implementation results in much denser bytecode.
         // solhint-disable-next-line no-inline-assembly
         assembly {
-        // The function selector is located at the first 4 bytes of calldata. We copy the first full calldata
-        // 256 word, and then perform a logical shift to the right, moving the selector to the least significant
-        // 4 bytes.
+            // The function selector is located at the first 4 bytes of calldata. We copy the first full calldata
+            // 256 word, and then perform a logical shift to the right, moving the selector to the least significant
+            // 4 bytes.
             let selector := shr(224, calldataload(0))
 
-        // With the selector in the least significant 4 bytes, we can use 4 byte literals with leading zeros,
-        // resulting in dense bytecode (PUSH4 opcodes).
+            // With the selector in the least significant 4 bytes, we can use 4 byte literals with leading zeros,
+            // resulting in dense bytecode (PUSH4 opcodes).
             switch selector
-            case 0xb95cac28 {
-                hash := _JOIN_TYPE_HASH
-            }
-            case 0x8bdb3913 {
-                hash := _EXIT_TYPE_HASH
-            }
-            case 0x52bbbe29 {
-                hash := _SWAP_TYPE_HASH
-            }
-            case 0x945bcec9 {
-                hash := _BATCH_SWAP_TYPE_HASH
-            }
-            case 0xfa6e671d {
-                hash := _SET_RELAYER_TYPE_HASH
-            }
-            default {
-                hash := 0x0000000000000000000000000000000000000000000000000000000000000000
-            }
+                case 0xb95cac28 {
+                    hash := _JOIN_TYPE_HASH
+                }
+                case 0x8bdb3913 {
+                    hash := _EXIT_TYPE_HASH
+                }
+                case 0x52bbbe29 {
+                    hash := _SWAP_TYPE_HASH
+                }
+                case 0x945bcec9 {
+                    hash := _BATCH_SWAP_TYPE_HASH
+                }
+                case 0xfa6e671d {
+                    hash := _SET_RELAYER_TYPE_HASH
+                }
+                default {
+                    hash := 0x0000000000000000000000000000000000000000000000000000000000000000
+                }
         }
     }
 }
 
 
-// File @koil-finance/solidity-utils/contracts/openzeppelin/SafeERC20.sol@v1.0.0
+// File @koil-finance/solidity-utils/contracts/openzeppelin/SafeERC20.sol@v1.0.1
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
 
@@ -1963,7 +1959,7 @@ library SafeERC20 {
 }
 
 
-// File @koil-finance/solidity-utils/contracts/math/LogExpMath.sol@v1.0.0
+// File @koil-finance/solidity-utils/contracts/math/LogExpMath.sol@v1.0.1
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
 
@@ -2467,7 +2463,7 @@ library LogExpMath {
 }
 
 
-// File @koil-finance/solidity-utils/contracts/math/FixedPoint.sol@v1.0.0
+// File @koil-finance/solidity-utils/contracts/math/FixedPoint.sol@v1.0.1
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
 
@@ -2617,7 +2613,7 @@ library FixedPoint {
 }
 
 
-// File @koil-finance/solidity-utils/contracts/helpers/InputHelpers.sol@v1.0.0
+// File @koil-finance/solidity-utils/contracts/helpers/InputHelpers.sol@v1.0.1
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
 
@@ -2664,6 +2660,8 @@ library InputHelpers {
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
 
+pragma solidity ^0.7.0;
+
 
 
 
@@ -2697,7 +2695,7 @@ contract ProtocolFeesCollector is IProtocolFeesCollector, Authentication, Reentr
     constructor(IVaultPartial _vault)
         // The ProtocolFeesCollector is a singleton, so it simply uses its own address to disambiguate action
         // identifiers.
-    Authentication(bytes32(uint256(address(this))))
+        Authentication(bytes32(uint256(address(this))))
     {
         vault = _vault;
     }
@@ -2706,7 +2704,7 @@ contract ProtocolFeesCollector is IProtocolFeesCollector, Authentication, Reentr
         IERC20[] calldata tokens,
         uint256[] calldata amounts,
         address recipient
-    ) external override nonReentrant authenticate {
+    ) external override nonReentrant(0) authenticate {
         InputHelpers.ensureInputLengthMatch(tokens.length, amounts.length);
 
         for (uint256 i = 0; i < tokens.length; ++i) {
@@ -2740,10 +2738,10 @@ contract ProtocolFeesCollector is IProtocolFeesCollector, Authentication, Reentr
     }
 
     function getCollectedFeeAmounts(IERC20[] memory tokens)
-    external
-    view
-    override
-    returns (uint256[] memory feeAmounts)
+        external
+        view
+        override
+        returns (uint256[] memory feeAmounts)
     {
         feeAmounts = new uint256[](tokens.length);
         for (uint256 i = 0; i < tokens.length; ++i) {
@@ -2768,6 +2766,8 @@ contract ProtocolFeesCollector is IProtocolFeesCollector, Authentication, Reentr
 // File contracts/Fees.sol
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
+
+pragma solidity ^0.7.0;
 
 
 
@@ -2825,6 +2825,9 @@ abstract contract Fees is IVault {
 // implementation and terminology and interfaces are intentionally kept
 // similar
 
+pragma solidity ^0.7.0;
+
+
 
 
 
@@ -2833,7 +2836,7 @@ abstract contract Fees is IVault {
  * @dev Handles Flash Loans through the Vault. Calls the `receiveFlashLoan` hook on the flash loan recipient
  * contract, which implements the `IFlashLoanRecipient` interface.
  */
-abstract contract FlashLoans is Fees, ReentrancyGuard, TemporarilyPausable {
+abstract contract FlashLoans is Fees, ReentrancyGuard, Authentication, TemporarilyPausable {
     using SafeERC20 for IERC20;
 
     function flashLoan(
@@ -2841,7 +2844,7 @@ abstract contract FlashLoans is Fees, ReentrancyGuard, TemporarilyPausable {
         IERC20[] memory tokens,
         uint256[] memory amounts,
         bytes memory userData
-    ) external override nonReentrant whenNotPaused {
+    ) external override nonReentrant(1) authenticate whenNotPaused {
         InputHelpers.ensureInputLengthMatch(tokens.length, amounts.length);
 
         uint256[] memory feeAmounts = new uint256[](tokens.length);
@@ -2886,7 +2889,7 @@ abstract contract FlashLoans is Fees, ReentrancyGuard, TemporarilyPausable {
 }
 
 
-// File @koil-finance/solidity-utils/contracts/math/Math.sol@v1.0.0
+// File @koil-finance/solidity-utils/contracts/math/Math.sol@v1.0.1
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
 
@@ -2985,7 +2988,7 @@ library Math {
 }
 
 
-// File @koil-finance/solidity-utils/contracts/openzeppelin/EnumerableMap.sol@v1.0.0
+// File @koil-finance/solidity-utils/contracts/openzeppelin/EnumerableMap.sol@v1.0.1
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
 
@@ -3418,12 +3421,12 @@ library EnumerableMap {
 }
 
 
-// File @koil-finance/solidity-utils/contracts/openzeppelin/EnumerableSet.sol@v1.0.0
+// File @koil-finance/solidity-utils/contracts/openzeppelin/EnumerableSet.sol@v1.0.1
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
 
 // Based on the EnumerableSet library from OpenZeppelin Contracts, altered to remove the base private functions that
-// work on bytes32, replacing them with a native implementation for address and bytes32 values, to reduce bytecode 
+// work on bytes32, replacing them with a native implementation for address and bytes32 values, to reduce bytecode
 // size and runtime costs.
 // The `unchecked_at` function was also added, which allows for more gas efficient data reads in some scenarios.
 
@@ -3571,7 +3574,7 @@ library EnumerableSet {
     struct Bytes32Set {
         // Storage of set values
         bytes32[] _values;
-        // Position of the value in the `values` array, plus 1 because index 0 
+        // Position of the value in the `values` array, plus 1 because index 0
         // means a value is not in the set.
         mapping(bytes32 => uint256) _indexes;
     }
@@ -3579,7 +3582,7 @@ library EnumerableSet {
     /**
      * @dev Add a value to a set. O(1).
      *
-     * Returns true if the value was added to the set, that is if it was not 
+     * Returns true if the value was added to the set, that is if it was not
      * already present.
      */
     function add(Bytes32Set storage set, bytes32 value) internal returns (bool) {
@@ -3680,7 +3683,7 @@ library EnumerableSet {
 }
 
 
-// File @koil-finance/solidity-utils/contracts/openzeppelin/SafeCast.sol@v1.0.0
+// File @koil-finance/solidity-utils/contracts/openzeppelin/SafeCast.sol@v1.0.1
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
 
@@ -3716,7 +3719,7 @@ library SafeCast {
 }
 
 
-// File @koil-finance/solidity-utils/contracts/openzeppelin/Address.sol@v1.0.0
+// File @koil-finance/solidity-utils/contracts/openzeppelin/Address.sol@v1.0.1
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
 
@@ -3875,8 +3878,8 @@ abstract contract AssetHelpers {
     }
 
     /**
-     * @dev Translates `asset` into an equivalent IERC20 token address. If `asset` represents FUSE, it will be translated
-     * to the WFUSE contract.
+     * @dev Translates `asset` into an equivalent IERC20 token address.
+     * If `asset` represents FUSE, it will be translated to the WFUSE contract.
      */
     function _translateToIERC20(IAsset asset) internal view returns (IERC20) {
         return _isFUSE(asset) ? _WFUSE() : _asIERC20(asset);
@@ -3894,8 +3897,9 @@ abstract contract AssetHelpers {
     }
 
     /**
-     * @dev Interprets `asset` as an IERC20 token. This function should only be called on `asset` if `_isFUSE` previously
-     * returned false for it, that is, if `asset` is guaranteed not to be the FUSE sentinel value.
+     * @dev Interprets `asset` as an IERC20 token.
+     * This function should only be called on `asset` if `_isFUSE` previously returned false for it,
+     * that is, if `asset` is guaranteed not to be the FUSE sentinel value.
      */
     function _asIERC20(IAsset asset) internal pure returns (IERC20) {
         return IERC20(address(asset));
@@ -3906,6 +3910,8 @@ abstract contract AssetHelpers {
 // File contracts/AssetTransfersHandler.sol
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
+
+pragma solidity ^0.7.0;
 
 
 
@@ -3921,8 +3927,8 @@ abstract contract AssetTransfersHandler is AssetHelpers {
      * @dev Receives `amount` of `asset` from `sender`. If `fromInternalBalance` is true, it first withdraws as much
      * as possible from Internal Balance, then transfers any remaining amount.
      *
-     * If `asset` is FUSE, `fromInternalBalance` must be false (as FUSE cannot be held as internal balance), and the funds
-     * will be wrapped into WFUSE.
+     * If `asset` is FUSE, `fromInternalBalance` must be false (as FUSE cannot be held as internal balance),
+     * and the funds will be wrapped into WFUSE.
      *
      * WARNING: this function does not check that the contract caller has actually supplied any FUSE - it is up to the
      * caller of this function to check that this is true to prevent the Vault from using its own FUSE (though the Vault
@@ -4022,14 +4028,14 @@ abstract contract AssetTransfersHandler is AssetHelpers {
     }
 
     /**
-     * @dev Enables the Vault to receive FUSE. This is required for it to be able to unwrap WFUSE, which sends FUSE to the
-     * caller.
+     * @dev Enables the Vault to receive FUSE.
+     * This is required for it to be able to unwrap WFUSE, which sends FUSE to the caller.
      *
      * Any FUSE sent to the Vault outside of the WFUSE unwrapping mechanism would be forever locked inside the Vault, so
-     * we prevent that from happening. Other mechanisms used to send FUSE to the Vault (such as being the recipient of an
-     * FUSE swap, Pool exit or withdrawal, contract self-destruction, or receiving the block mining reward) will result
-     * in locked funds, but are not otherwise a security or soundness issue. This check only exists as an attempt to
-     * prevent user error.
+     * we prevent that from happening. Other mechanisms used to send FUSE to the Vault (such as being the recipient of
+     * an FUSE swap, Pool exit or withdrawal, contract self-destruction, or receiving the block mining reward) will
+     * result in locked funds, but are not otherwise a security or soundness issue. This check only exists as an attempt
+     * to prevent user error.
      */
     receive() external payable {
         _require(msg.sender == address(_WFUSE()), Errors.FUSE_TRANSFER);
@@ -4058,6 +4064,8 @@ abstract contract AssetTransfersHandler is AssetHelpers {
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
 
+pragma solidity ^0.7.0;
+
 
 
 
@@ -4084,10 +4092,10 @@ abstract contract UserBalance is ReentrancyGuard, AssetTransfersHandler, VaultAu
     mapping(address => mapping(IERC20 => uint256)) private _internalTokenBalance;
 
     function getInternalBalance(address user, IERC20[] memory tokens)
-    external
-    view
-    override
-    returns (uint256[] memory balances)
+        external
+        view
+        override
+        returns (uint256[] memory balances)
     {
         balances = new uint256[](tokens.length);
         for (uint256 i = 0; i < tokens.length; i++) {
@@ -4095,7 +4103,7 @@ abstract contract UserBalance is ReentrancyGuard, AssetTransfersHandler, VaultAu
         }
     }
 
-    function manageUserBalance(UserBalanceOp[] memory ops) external payable override nonReentrant {
+    function manageUserBalance(UserBalanceOp[] memory ops) external payable override nonReentrant(0) {
         // We need to track how much of the received FUSE was used and wrapped into WFUSE to return any excess.
         uint256 ethWrapped = 0;
 
@@ -4261,16 +4269,16 @@ abstract contract UserBalance is ReentrancyGuard, AssetTransfersHandler, VaultAu
      * @dev Destructures a User Balance operation, validating that the contract caller is allowed to perform it.
      */
     function _validateUserBalanceOp(UserBalanceOp memory op, bool checkedCallerIsRelayer)
-    private
-    view
-    returns (
-        UserBalanceOpKind,
-        IAsset,
-        uint256,
-        address,
-        address payable,
-        bool
-    )
+        private
+        view
+        returns (
+            UserBalanceOpKind,
+            IAsset,
+            uint256,
+            address,
+            address payable,
+            bool
+        )
     {
         // The only argument we need to validate is `sender`, which can only be either the contract caller, or a
         // relayer approved by `sender`.
@@ -4380,12 +4388,12 @@ library BalanceAllocation {
      * balance of *any* of them last changed.
      */
     function totalsAndLastChangeBlock(bytes32[] memory balances)
-    internal
-    pure
-    returns (
-        uint256[] memory results,
-        uint256 lastChangeBlock_ // Avoid shadowing
-    )
+        internal
+        pure
+        returns (
+            uint256[] memory results,
+            uint256 lastChangeBlock_ // Avoid shadowing
+        )
     {
         results = new uint256[](balances.length);
         lastChangeBlock_ = 0;
@@ -4749,9 +4757,9 @@ abstract contract GeneralPoolsBalance {
      * This function assumes `poolId` exists and corresponds to the General specialization setting.
      */
     function _getGeneralPoolTokens(bytes32 poolId)
-    internal
-    view
-    returns (IERC20[] memory tokens, bytes32[] memory balances)
+        internal
+        view
+        returns (IERC20[] memory tokens, bytes32[] memory balances)
     {
         EnumerableMap.IERC20ToBytes32Map storage poolBalances = _generalPoolsBalances[poolId];
         tokens = new IERC20[](poolBalances.length());
@@ -4783,9 +4791,9 @@ abstract contract GeneralPoolsBalance {
      * writes.
      */
     function _getGeneralPoolBalance(EnumerableMap.IERC20ToBytes32Map storage poolBalances, IERC20 token)
-    private
-    view
-    returns (bytes32)
+        private
+        view
+        returns (bytes32)
     {
         return poolBalances.get(token, Errors.TOKEN_NOT_REGISTERED);
     }
@@ -4805,6 +4813,8 @@ abstract contract GeneralPoolsBalance {
 // File contracts/PoolRegistry.sol
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
+
+pragma solidity ^0.7.0;
 
 
 /**
@@ -4852,11 +4862,11 @@ abstract contract PoolRegistry is ReentrancyGuard, VaultAuthorization {
     }
 
     function registerPool(PoolSpecialization specialization)
-    external
-    override
-    nonReentrant
-    whenNotPaused
-    returns (bytes32)
+        external
+        override
+        nonReentrant(0)
+        whenNotPaused
+        returns (bytes32)
     {
         // Each Pool is assigned a unique ID based on an incrementing nonce. This assumes there will never be more than
         // 2**80 Pools, and the nonce will not overflow.
@@ -4874,11 +4884,11 @@ abstract contract PoolRegistry is ReentrancyGuard, VaultAuthorization {
     }
 
     function getPool(bytes32 poolId)
-    external
-    view
-    override
-    withRegisteredPool(poolId)
-    returns (address, PoolSpecialization)
+        external
+        view
+        override
+        withRegisteredPool(poolId)
+        returns (address, PoolSpecialization)
     {
         return (_getPoolAddress(poolId), _getPoolSpecialization(poolId));
     }
@@ -4953,6 +4963,8 @@ abstract contract PoolRegistry is ReentrancyGuard, VaultAuthorization {
 // File contracts/balances/MinimalSwapInfoPoolsBalance.sol
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
+
+pragma solidity ^0.7.0;
 
 
 
@@ -5111,9 +5123,9 @@ abstract contract MinimalSwapInfoPoolsBalance is PoolRegistry {
      * This function assumes `poolId` exists and corresponds to the Minimal Swap Info specialization setting.
      */
     function _getMinimalSwapInfoPoolTokens(bytes32 poolId)
-    internal
-    view
-    returns (IERC20[] memory tokens, bytes32[] memory balances)
+        internal
+        view
+        returns (IERC20[] memory tokens, bytes32[] memory balances)
     {
         EnumerableSet.AddressSet storage poolTokens = _minimalSwapInfoPoolsTokens[poolId];
         tokens = new IERC20[](poolTokens.length());
@@ -5169,6 +5181,8 @@ abstract contract MinimalSwapInfoPoolsBalance is PoolRegistry {
 // File contracts/balances/TwoTokenPoolsBalance.sol
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
+
+pragma solidity ^0.7.0;
 
 
 
@@ -5265,9 +5279,9 @@ abstract contract TwoTokenPoolsBalance is PoolRegistry {
         IERC20 tokenY
     ) internal {
         (
-        bytes32 balanceA,
-        bytes32 balanceB,
-        TwoTokenPoolBalances storage poolBalances
+            bytes32 balanceA,
+            bytes32 balanceB,
+            TwoTokenPoolBalances storage poolBalances
         ) = _getTwoTokenPoolSharedBalances(poolId, tokenX, tokenY);
 
         _require(balanceA.isZero() && balanceB.isZero(), Errors.NONZERO_TOKEN_BALANCE);
@@ -5356,11 +5370,11 @@ abstract contract TwoTokenPoolsBalance is PoolRegistry {
         uint256 amount
     ) private returns (int256) {
         (
-        TwoTokenPoolBalances storage balances,
-        IERC20 tokenA,
-        bytes32 balanceA,
-        ,
-        bytes32 balanceB
+            TwoTokenPoolBalances storage balances,
+            IERC20 tokenA,
+            bytes32 balanceA,
+            ,
+            bytes32 balanceB
         ) = _getTwoTokenPoolBalances(poolId);
 
         int256 delta;
@@ -5388,9 +5402,9 @@ abstract contract TwoTokenPoolsBalance is PoolRegistry {
      * This function assumes `poolId` exists and corresponds to the Two Token specialization setting.
      */
     function _getTwoTokenPoolTokens(bytes32 poolId)
-    internal
-    view
-    returns (IERC20[] memory tokens, bytes32[] memory balances)
+        internal
+        view
+        returns (IERC20[] memory tokens, bytes32[] memory balances)
     {
         (, IERC20 tokenA, bytes32 balanceA, IERC20 tokenB, bytes32 balanceB) = _getTwoTokenPoolBalances(poolId);
 
@@ -5418,15 +5432,15 @@ abstract contract TwoTokenPoolsBalance is PoolRegistry {
      * without having to recompute the pair hash and storage slot.
      */
     function _getTwoTokenPoolBalances(bytes32 poolId)
-    private
-    view
-    returns (
-        TwoTokenPoolBalances storage poolBalances,
-        IERC20 tokenA,
-        bytes32 balanceA,
-        IERC20 tokenB,
-        bytes32 balanceB
-    )
+        private
+        view
+        returns (
+            TwoTokenPoolBalances storage poolBalances,
+            IERC20 tokenA,
+            bytes32 balanceA,
+            IERC20 tokenB,
+            bytes32 balanceB
+        )
     {
         TwoTokenPoolTokens storage poolTokens = _twoTokenPoolTokens[poolId];
         tokenA = poolTokens.tokenA;
@@ -5487,13 +5501,13 @@ abstract contract TwoTokenPoolsBalance is PoolRegistry {
         IERC20 tokenX,
         IERC20 tokenY
     )
-    internal
-    view
-    returns (
-        bytes32 balanceA,
-        bytes32 balanceB,
-        TwoTokenPoolBalances storage poolBalances
-    )
+        internal
+        view
+        returns (
+            bytes32 balanceA,
+            bytes32 balanceB,
+            TwoTokenPoolBalances storage poolBalances
+        )
     {
         (IERC20 tokenA, IERC20 tokenB) = _sortTwoTokens(tokenX, tokenY);
         bytes32 pairHash = _getTwoTokenPairHash(tokenA, tokenB);
@@ -5509,8 +5523,8 @@ abstract contract TwoTokenPoolsBalance is PoolRegistry {
         // token is registered in the Pool. Token registration implies that the Pool is registered as well, which
         // lets us save gas by not performing the check.
         bool tokensRegistered = sharedCash.isNotZero() ||
-        sharedManaged.isNotZero() ||
-        (_isTwoTokenPoolTokenRegistered(poolId, tokenA) && _isTwoTokenPoolTokenRegistered(poolId, tokenB));
+            sharedManaged.isNotZero() ||
+            (_isTwoTokenPoolTokenRegistered(poolId, tokenA) && _isTwoTokenPoolTokenRegistered(poolId, tokenB));
 
         if (!tokensRegistered) {
             // The tokens might not be registered because the Pool itself is not registered. We check this to provide a
@@ -5555,6 +5569,8 @@ abstract contract TwoTokenPoolsBalance is PoolRegistry {
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
 
+pragma solidity ^0.7.0;
+
 
 
 
@@ -5565,10 +5581,10 @@ abstract contract TwoTokenPoolsBalance is PoolRegistry {
 
 
 abstract contract AssetManagers is
-ReentrancyGuard,
-GeneralPoolsBalance,
-MinimalSwapInfoPoolsBalance,
-TwoTokenPoolsBalance
+    ReentrancyGuard,
+    GeneralPoolsBalance,
+    MinimalSwapInfoPoolsBalance,
+    TwoTokenPoolsBalance
 {
     using Math for uint256;
     using SafeERC20 for IERC20;
@@ -5576,7 +5592,7 @@ TwoTokenPoolsBalance
     // Stores the Asset Manager for each token of each Pool.
     mapping(bytes32 => mapping(IERC20 => address)) internal _poolAssetManagers;
 
-    function managePoolBalance(PoolBalanceOp[] memory ops) external override nonReentrant whenNotPaused {
+    function managePoolBalance(PoolBalanceOp[] memory ops) external override nonReentrant(0) whenNotPaused {
         // This variable could be declared inside the loop, but that causes the compiler to allocate memory on each
         // loop iteration, increasing gas costs.
         PoolBalanceOp memory op;
@@ -5730,6 +5746,8 @@ TwoTokenPoolsBalance
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
 
+pragma solidity ^0.7.0;
+
 
 
 
@@ -5741,7 +5759,7 @@ abstract contract PoolTokens is ReentrancyGuard, PoolRegistry, AssetManagers {
         bytes32 poolId,
         IERC20[] memory tokens,
         address[] memory assetManagers
-    ) external override nonReentrant whenNotPaused onlyPool(poolId) {
+    ) external override nonReentrant(0) whenNotPaused onlyPool(poolId) {
         InputHelpers.ensureInputLengthMatch(tokens.length, assetManagers.length);
 
         // Validates token addresses and assigns Asset Managers
@@ -5767,11 +5785,11 @@ abstract contract PoolTokens is ReentrancyGuard, PoolRegistry, AssetManagers {
     }
 
     function deregisterTokens(bytes32 poolId, IERC20[] memory tokens)
-    external
-    override
-    nonReentrant
-    whenNotPaused
-    onlyPool(poolId)
+        external
+        override
+        nonReentrant(0)
+        whenNotPaused
+        onlyPool(poolId)
     {
         PoolSpecialization specialization = _getPoolSpecialization(poolId);
         if (specialization == PoolSpecialization.TWO_TOKEN) {
@@ -5794,15 +5812,15 @@ abstract contract PoolTokens is ReentrancyGuard, PoolRegistry, AssetManagers {
     }
 
     function getPoolTokens(bytes32 poolId)
-    external
-    view
-    override
-    withRegisteredPool(poolId)
-    returns (
-        IERC20[] memory tokens,
-        uint256[] memory balances,
-        uint256 lastChangeBlock
-    )
+        external
+        view
+        override
+        withRegisteredPool(poolId)
+        returns (
+            IERC20[] memory tokens,
+            uint256[] memory balances,
+            uint256 lastChangeBlock
+        )
     {
         bytes32[] memory rawBalances;
         (tokens, rawBalances) = _getPoolTokens(poolId);
@@ -5810,16 +5828,16 @@ abstract contract PoolTokens is ReentrancyGuard, PoolRegistry, AssetManagers {
     }
 
     function getPoolTokenInfo(bytes32 poolId, IERC20 token)
-    external
-    view
-    override
-    withRegisteredPool(poolId)
-    returns (
-        uint256 cash,
-        uint256 managed,
-        uint256 lastChangeBlock,
-        address assetManager
-    )
+        external
+        view
+        override
+        withRegisteredPool(poolId)
+        returns (
+            uint256 cash,
+            uint256 managed,
+            uint256 lastChangeBlock,
+            address assetManager
+        )
     {
         bytes32 balance;
         PoolSpecialization specialization = _getPoolSpecialization(poolId);
@@ -5859,6 +5877,8 @@ abstract contract PoolTokens is ReentrancyGuard, PoolRegistry, AssetManagers {
 // File contracts/interfaces/IPoolSwapStructs.sol
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
+
+pragma solidity ^0.7.0;
 
 interface IPoolSwapStructs {
     // This is not really an interface - it just defines common structs used by other interfaces: IGeneralPool and
@@ -5903,6 +5923,8 @@ interface IPoolSwapStructs {
 // File contracts/interfaces/IBasePool.sol
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
+
+pragma solidity ^0.7.0;
 
 
 /**
@@ -5982,6 +6004,8 @@ interface IBasePool is IPoolSwapStructs {
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
 
+pragma solidity ^0.7.0;
+
 
 
 
@@ -6040,9 +6064,9 @@ abstract contract PoolBalances is Fees, ReentrancyGuard, PoolTokens, UserBalance
      * @dev Converts a JoinPoolRequest into a PoolBalanceChange, with no runtime cost.
      */
     function _toPoolBalanceChange(JoinPoolRequest memory request)
-    private
-    pure
-    returns (PoolBalanceChange memory change)
+        private
+        pure
+        returns (PoolBalanceChange memory change)
     {
         // solhint-disable-next-line no-inline-assembly
         assembly {
@@ -6054,9 +6078,9 @@ abstract contract PoolBalances is Fees, ReentrancyGuard, PoolTokens, UserBalance
      * @dev Converts an ExitPoolRequest into a PoolBalanceChange, with no runtime cost.
      */
     function _toPoolBalanceChange(ExitPoolRequest memory request)
-    private
-    pure
-    returns (PoolBalanceChange memory change)
+        private
+        pure
+        returns (PoolBalanceChange memory change)
     {
         // solhint-disable-next-line no-inline-assembly
         assembly {
@@ -6073,7 +6097,7 @@ abstract contract PoolBalances is Fees, ReentrancyGuard, PoolTokens, UserBalance
         address sender,
         address payable recipient,
         PoolBalanceChange memory change
-    ) private nonReentrant withRegisteredPool(poolId) authenticateFor(sender) {
+    ) private nonReentrant(0) withRegisteredPool(poolId) authenticateFor(sender) {
         // This function uses a large number of stack variables (poolId, sender and recipient, balances, amounts, fees,
         // etc.), which leads to 'stack too deep' issues. It relies on private functions with seemingly arbitrary
         // interfaces to work around this limitation.
@@ -6088,9 +6112,9 @@ abstract contract PoolBalances is Fees, ReentrancyGuard, PoolTokens, UserBalance
         // The bulk of the work is done here: the corresponding Pool hook is called, its final balances are computed,
         // assets are transferred, and fees are paid.
         (
-        bytes32[] memory finalBalances,
-        uint256[] memory amountsInOrOut,
-        uint256[] memory paidProtocolSwapFeeAmounts
+            bytes32[] memory finalBalances,
+            uint256[] memory amountsInOrOut,
+            uint256[] memory paidProtocolSwapFeeAmounts
         ) = _callPoolBalanceChange(kind, poolId, sender, recipient, change, balances);
 
         // All that remains is storing the new Pool balances.
@@ -6109,7 +6133,7 @@ abstract contract PoolBalances is Fees, ReentrancyGuard, PoolTokens, UserBalance
             poolId,
             sender,
             tokens,
-        // We can unsafely cast to int256 because balances are actually stored as uint112
+            // We can unsafely cast to int256 because balances are actually stored as uint112
             _unsafeCastToInt256(amountsInOrOut, positive),
             paidProtocolSwapFeeAmounts
         );
@@ -6127,43 +6151,43 @@ abstract contract PoolBalances is Fees, ReentrancyGuard, PoolTokens, UserBalance
         PoolBalanceChange memory change,
         bytes32[] memory balances
     )
-    private
-    returns (
-        bytes32[] memory finalBalances,
-        uint256[] memory amountsInOrOut,
-        uint256[] memory dueProtocolFeeAmounts
-    )
+        private
+        returns (
+            bytes32[] memory finalBalances,
+            uint256[] memory amountsInOrOut,
+            uint256[] memory dueProtocolFeeAmounts
+        )
     {
         (uint256[] memory totalBalances, uint256 lastChangeBlock) = balances.totalsAndLastChangeBlock();
 
         IBasePool pool = IBasePool(_getPoolAddress(poolId));
         (amountsInOrOut, dueProtocolFeeAmounts) = kind == PoolBalanceChangeKind.JOIN
-        ? pool.onJoinPool(
-            poolId,
-            sender,
-            recipient,
-            totalBalances,
-            lastChangeBlock,
-            _getProtocolSwapFeePercentage(),
-            change.userData
-        )
-        : pool.onExitPool(
-            poolId,
-            sender,
-            recipient,
-            totalBalances,
-            lastChangeBlock,
-            _getProtocolSwapFeePercentage(),
-            change.userData
-        );
+            ? pool.onJoinPool(
+                poolId,
+                sender,
+                recipient,
+                totalBalances,
+                lastChangeBlock,
+                _getProtocolSwapFeePercentage(),
+                change.userData
+            )
+            : pool.onExitPool(
+                poolId,
+                sender,
+                recipient,
+                totalBalances,
+                lastChangeBlock,
+                _getProtocolSwapFeePercentage(),
+                change.userData
+            );
 
         InputHelpers.ensureInputLengthMatch(balances.length, amountsInOrOut.length, dueProtocolFeeAmounts.length);
 
         // The Vault ignores the `recipient` in joins and the `sender` in exits: it is up to the Pool to keep track of
         // their participation.
         finalBalances = kind == PoolBalanceChangeKind.JOIN
-        ? _processJoinPoolTransfers(sender, change, balances, amountsInOrOut, dueProtocolFeeAmounts)
-        : _processExitPoolTransfers(recipient, change, balances, amountsInOrOut, dueProtocolFeeAmounts);
+            ? _processJoinPoolTransfers(sender, change, balances, amountsInOrOut, dueProtocolFeeAmounts)
+            : _processExitPoolTransfers(recipient, change, balances, amountsInOrOut, dueProtocolFeeAmounts);
     }
 
     /**
@@ -6202,8 +6226,8 @@ abstract contract PoolBalances is Fees, ReentrancyGuard, PoolTokens, UserBalance
             // Compute the new Pool balances. Note that the fee amount might be larger than `amountIn`,
             // resulting in an overall decrease of the Pool's balance for a token.
             finalBalances[i] = (amountIn >= feeAmount) // This lets us skip checked arithmetic
-            ? balances[i].increaseCash(amountIn - feeAmount)
-            : balances[i].decreaseCash(feeAmount - amountIn);
+                ? balances[i].increaseCash(amountIn - feeAmount)
+                : balances[i].decreaseCash(feeAmount - amountIn);
         }
 
         // Handle any used and remaining FUSE.
@@ -6248,9 +6272,9 @@ abstract contract PoolBalances is Fees, ReentrancyGuard, PoolTokens, UserBalance
      * length, elements and order. Additionally, the Pool must have at least one registered token.
      */
     function _validateTokensAndGetBalances(bytes32 poolId, IERC20[] memory expectedTokens)
-    private
-    view
-    returns (bytes32[] memory)
+        private
+        view
+        returns (bytes32[] memory)
     {
         (IERC20[] memory actualTokens, bytes32[] memory balances) = _getPoolTokens(poolId);
         InputHelpers.ensureInputLengthMatch(actualTokens.length, expectedTokens.length);
@@ -6268,9 +6292,9 @@ abstract contract PoolBalances is Fees, ReentrancyGuard, PoolTokens, UserBalance
      * without checking whether the values fit in the signed 256 bit range.
      */
     function _unsafeCastToInt256(uint256[] memory values, bool positive)
-    private
-    pure
-    returns (int256[] memory signedValues)
+        private
+        pure
+        returns (int256[] memory signedValues)
     {
         signedValues = new int256[](values.length);
         for (uint256 i = 0; i < values.length; i++) {
@@ -6283,6 +6307,8 @@ abstract contract PoolBalances is Fees, ReentrancyGuard, PoolTokens, UserBalance
 // File contracts/interfaces/IGeneralPool.sol
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
+
+pragma solidity ^0.7.0;
 
 /**
  * @dev IPools with the General specialization setting should implement this interface.
@@ -6309,6 +6335,8 @@ interface IGeneralPool is IBasePool {
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
 
+pragma solidity ^0.7.0;
+
 /**
  * @dev Pool contracts with the MinimalSwapInfo or TwoToken specialization settings should implement this interface.
  *
@@ -6332,6 +6360,8 @@ interface IMinimalSwapInfoPool is IBasePool {
 // File contracts/Swaps.sol
 
 // SPDX!-License-Identifier: GPL-3.0-or-later
+
+pragma solidity ^0.7.0;
 
 
 
@@ -6373,13 +6403,13 @@ abstract contract Swaps is ReentrancyGuard, PoolBalances {
         uint256 limit,
         uint256 deadline
     )
-    external
-    payable
-    override
-    nonReentrant
-    whenNotPaused
-    authenticateFor(funds.sender)
-    returns (uint256 amountCalculated)
+        external
+        payable
+        override
+        nonReentrant(0)
+        whenNotPaused
+        authenticateFor(funds.sender)
+        returns (uint256 amountCalculated)
     {
         // The deadline is timestamp-based: it should not be relied upon for sub-minute accuracy.
         // solhint-disable-next-line not-rely-on-time
@@ -6426,13 +6456,13 @@ abstract contract Swaps is ReentrancyGuard, PoolBalances {
         int256[] memory limits,
         uint256 deadline
     )
-    external
-    payable
-    override
-    nonReentrant
-    whenNotPaused
-    authenticateFor(funds.sender)
-    returns (int256[] memory assetDeltas)
+        external
+        payable
+        override
+        nonReentrant(0)
+        whenNotPaused
+        authenticateFor(funds.sender)
+        returns (int256[] memory assetDeltas)
     {
         // The deadline is timestamp-based: it should not be relied upon for sub-minute accuracy.
         // solhint-disable-next-line not-rely-on-time
@@ -6537,7 +6567,7 @@ abstract contract Swaps is ReentrancyGuard, PoolBalances {
             batchSwapStep = swaps[i];
 
             bool withinBounds = batchSwapStep.assetInIndex < assets.length &&
-            batchSwapStep.assetOutIndex < assets.length;
+                batchSwapStep.assetOutIndex < assets.length;
             _require(withinBounds, Errors.OUT_OF_BOUNDS);
 
             IERC20 tokenIn = _translateToIERC20(assets[batchSwapStep.assetInIndex]);
@@ -6587,12 +6617,12 @@ abstract contract Swaps is ReentrancyGuard, PoolBalances {
      * Returns the amount of tokens going into or out of the Vault as a result of this swap, depending on the swap kind.
      */
     function _swapWithPool(IPoolSwapStructs.SwapRequest memory request)
-    private
-    returns (
-        uint256 amountCalculated,
-        uint256 amountIn,
-        uint256 amountOut
-    )
+        private
+        returns (
+            uint256 amountCalculated,
+            uint256 amountIn,
+            uint256 amountOut
+        )
     {
         // Get the calculated amount from the Pool and update its balances
         address pool = _getPoolAddress(request.poolId);
@@ -6612,16 +6642,16 @@ abstract contract Swaps is ReentrancyGuard, PoolBalances {
     }
 
     function _processTwoTokenPoolSwapRequest(IPoolSwapStructs.SwapRequest memory request, IMinimalSwapInfoPool pool)
-    private
-    returns (uint256 amountCalculated)
+        private
+        returns (uint256 amountCalculated)
     {
         // For gas efficiency reasons, this function uses low-level knowledge of how Two Token Pool balances are
         // stored internally, instead of using getters and setters for all operations.
 
         (
-        bytes32 tokenABalance,
-        bytes32 tokenBBalance,
-        TwoTokenPoolBalances storage poolBalances
+            bytes32 tokenABalance,
+            bytes32 tokenBBalance,
+            TwoTokenPoolBalances storage poolBalances
         ) = _getTwoTokenPoolSharedBalances(request.poolId, request.tokenIn, request.tokenOut);
 
         // We have the two Pool balances, but we don't know which one is 'token in' or 'token out'.
@@ -6649,8 +6679,8 @@ abstract contract Swaps is ReentrancyGuard, PoolBalances {
 
         // We check the token ordering again to create the new shared cash packed struct
         poolBalances.sharedCash = request.tokenIn < request.tokenOut
-        ? BalanceAllocation.toSharedCash(tokenInBalance, tokenOutBalance) // in is A, out is B
-        : BalanceAllocation.toSharedCash(tokenOutBalance, tokenInBalance); // in is B, out is A
+            ? BalanceAllocation.toSharedCash(tokenInBalance, tokenOutBalance) // in is A, out is B
+            : BalanceAllocation.toSharedCash(tokenOutBalance, tokenInBalance); // in is B, out is A
     }
 
     function _processMinimalSwapInfoPoolSwapRequest(
@@ -6682,12 +6712,12 @@ abstract contract Swaps is ReentrancyGuard, PoolBalances {
         bytes32 tokenInBalance,
         bytes32 tokenOutBalance
     )
-    internal
-    returns (
-        bytes32 newTokenInBalance,
-        bytes32 newTokenOutBalance,
-        uint256 amountCalculated
-    )
+        internal
+        returns (
+            bytes32 newTokenInBalance,
+            bytes32 newTokenOutBalance,
+            uint256 amountCalculated
+        )
     {
         uint256 tokenInTotal = tokenInBalance.total();
         uint256 tokenOutTotal = tokenOutBalance.total();
@@ -6702,8 +6732,8 @@ abstract contract Swaps is ReentrancyGuard, PoolBalances {
     }
 
     function _processGeneralPoolSwapRequest(IPoolSwapStructs.SwapRequest memory request, IGeneralPool pool)
-    private
-    returns (uint256 amountCalculated)
+        private
+        returns (uint256 amountCalculated)
     {
         bytes32 tokenInBalance;
         bytes32 tokenOutBalance;
@@ -6787,64 +6817,64 @@ abstract contract Swaps is ReentrancyGuard, PoolBalances {
 
             // solhint-disable-next-line no-inline-assembly
             assembly {
-            // This call should always revert to decode the actual asset deltas from the revert reason
+                // This call should always revert to decode the actual asset deltas from the revert reason
                 switch success
-                case 0 {
-                // Note we are manually writing the memory slot 0. We can safely overwrite whatever is
-                // stored there as we take full control of the execution and then immediately return.
+                    case 0 {
+                        // Note we are manually writing the memory slot 0. We can safely overwrite whatever is
+                        // stored there as we take full control of the execution and then immediately return.
 
-                // We copy the first 4 bytes to check if it matches with the expected signature, otherwise
-                // there was another revert reason and we should forward it.
-                    returndatacopy(0, 0, 0x04)
-                    let error := and(mload(0), 0xffffffff00000000000000000000000000000000000000000000000000000000)
+                        // We copy the first 4 bytes to check if it matches with the expected signature, otherwise
+                        // there was another revert reason and we should forward it.
+                        returndatacopy(0, 0, 0x04)
+                        let error := and(mload(0), 0xffffffff00000000000000000000000000000000000000000000000000000000)
 
-                // If the first 4 bytes don't match with the expected signature, we forward the revert reason.
-                    if eq(eq(error, 0xfa61cc1200000000000000000000000000000000000000000000000000000000), 0) {
-                        returndatacopy(0, 0, returndatasize())
-                        revert(0, returndatasize())
+                        // If the first 4 bytes don't match with the expected signature, we forward the revert reason.
+                        if eq(eq(error, 0xfa61cc1200000000000000000000000000000000000000000000000000000000), 0) {
+                            returndatacopy(0, 0, returndatasize())
+                            revert(0, returndatasize())
+                        }
+
+                        // The returndata contains the signature, followed by the raw memory representation of an array:
+                        // length + data. We need to return an ABI-encoded representation of this array.
+                        // An ABI-encoded array contains an additional field when compared to its raw memory
+                        // representation: an offset to the location of the length. The offset itself is 32 bytes long,
+                        // so the smallest value we  can use is 32 for the data to be located immediately after it.
+                        mstore(0, 32)
+
+                        // We now copy the raw memory array from returndata into memory. Since the offset takes up 32
+                        // bytes, we start copying at address 0x20. We also get rid of the error signature, which takes
+                        // the first four bytes of returndata.
+                        let size := sub(returndatasize(), 0x04)
+                        returndatacopy(0x20, 0x04, size)
+
+                        // We finally return the ABI-encoded array, which has a total length equal to that of the array
+                        // (returndata), plus the 32 bytes for the offset.
+                        return(0, add(size, 32))
                     }
-
-                // The returndata contains the signature, followed by the raw memory representation of an array:
-                // length + data. We need to return an ABI-encoded representation of this array.
-                // An ABI-encoded array contains an additional field when compared to its raw memory
-                // representation: an offset to the location of the length. The offset itself is 32 bytes long,
-                // so the smallest value we  can use is 32 for the data to be located immediately after it.
-                    mstore(0, 32)
-
-                // We now copy the raw memory array from returndata into memory. Since the offset takes up 32
-                // bytes, we start copying at address 0x20. We also get rid of the error signature, which takes
-                // the first four bytes of returndata.
-                    let size := sub(returndatasize(), 0x04)
-                    returndatacopy(0x20, 0x04, size)
-
-                // We finally return the ABI-encoded array, which has a total length equal to that of the array
-                // (returndata), plus the 32 bytes for the offset.
-                    return(0, add(size, 32))
-                }
-                default {
-                // This call should always revert, but we fail nonetheless if that didn't happen
-                    invalid()
-                }
+                    default {
+                        // This call should always revert, but we fail nonetheless if that didn't happen
+                        invalid()
+                    }
             }
         } else {
             int256[] memory deltas = _swapWithPools(swaps, assets, funds, kind);
 
             // solhint-disable-next-line no-inline-assembly
             assembly {
-            // We will return a raw representation of the array in memory, which is composed of a 32 byte length,
-            // followed by the 32 byte int256 values. Because revert expects a size in bytes, we multiply the array
-            // length (stored at `deltas`) by 32.
+                // We will return a raw representation of the array in memory, which is composed of a 32 byte length,
+                // followed by the 32 byte int256 values. Because revert expects a size in bytes, we multiply the array
+                // length (stored at `deltas`) by 32.
                 let size := mul(mload(deltas), 32)
 
-            // We send one extra value for the error signature "QueryError(int256[])" which is 0xfa61cc12.
-            // We store it in the previous slot to the `deltas` array. We know there will be at least one available
-            // slot due to how the memory scratch space works.
-            // We can safely overwrite whatever is stored in this slot as we will revert immediately after that.
+                // We send one extra value for the error signature "QueryError(int256[])" which is 0xfa61cc12.
+                // We store it in the previous slot to the `deltas` array. We know there will be at least one available
+                // slot due to how the memory scratch space works.
+                // We can safely overwrite whatever is stored in this slot as we will revert immediately after that.
                 mstore(sub(deltas, 0x20), 0x00000000000000000000000000000000000000000000000000000000fa61cc12)
                 let start := sub(deltas, 0x04)
 
-            // When copying from `deltas` into returndata, we copy an additional 36 bytes to also return the array's
-            // length and the error signature.
+                // When copying from `deltas` into returndata, we copy an additional 36 bytes to also return the array's
+                // length and the error signature.
                 revert(start, add(size, 36))
             }
         }
@@ -6855,6 +6885,8 @@ abstract contract Swaps is ReentrancyGuard, PoolBalances {
 // File contracts/Vault.sol
 
 // SPDX-License-Identifier: GPL-3.0-or-later
+
+pragma solidity ^0.7.0;
 
 
 
@@ -6899,11 +6931,15 @@ contract Vault is VaultAuthorization, FlashLoans, Swaps {
         IWFUSE wfuse,
         uint256 pauseWindowDuration,
         uint256 bufferPeriodDuration
-    ) VaultAuthorization(authorizer) AssetHelpers(wfuse) TemporarilyPausable(pauseWindowDuration, bufferPeriodDuration) {
+    )
+        VaultAuthorization(authorizer)
+        AssetHelpers(wfuse)
+        TemporarilyPausable(pauseWindowDuration, bufferPeriodDuration)
+    {
         // solhint-disable-previous-line no-empty-blocks
     }
 
-    function setPaused(bool paused) external override nonReentrant authenticate {
+    function setPaused(bool paused) external override nonReentrant(0) authenticate {
         _setPaused(paused);
     }
 

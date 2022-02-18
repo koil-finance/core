@@ -68,7 +68,7 @@ abstract contract VaultAuthorization is
         _setAuthorizer(authorizer);
     }
 
-    function setAuthorizer(IAuthorizer newAuthorizer) external override nonReentrant authenticate {
+    function setAuthorizer(IAuthorizer newAuthorizer) external override nonReentrant(0) authenticate {
         _setAuthorizer(newAuthorizer);
     }
 
@@ -85,7 +85,7 @@ abstract contract VaultAuthorization is
         address sender,
         address relayer,
         bool approved
-    ) external override nonReentrant whenNotPaused authenticateFor(sender) {
+    ) external override nonReentrant(0) whenNotPaused authenticateFor(sender) {
         _approvedRelayers[sender][relayer] = approved;
         emit RelayerApprovalChanged(relayer, sender, approved);
     }

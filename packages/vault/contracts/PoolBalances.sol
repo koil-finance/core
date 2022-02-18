@@ -98,7 +98,7 @@ abstract contract PoolBalances is Fees, ReentrancyGuard, PoolTokens, UserBalance
         address sender,
         address payable recipient,
         PoolBalanceChange memory change
-    ) private nonReentrant withRegisteredPool(poolId) authenticateFor(sender) {
+    ) private nonReentrant(0) withRegisteredPool(poolId) authenticateFor(sender) {
         // This function uses a large number of stack variables (poolId, sender and recipient, balances, amounts, fees,
         // etc.), which leads to 'stack too deep' issues. It relies on private functions with seemingly arbitrary
         // interfaces to work around this limitation.
